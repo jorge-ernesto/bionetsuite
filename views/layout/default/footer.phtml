@@ -1,0 +1,15 @@
+<?php if (isset($_layoutParams['jsGr']) && count($_layoutParams['jsGr'])) : ?>
+	<?php foreach ($_layoutParams['jsGr'] as $layoutjsGr) : ?>
+		<script src="<?php echo  $layoutjsGr ?>" type="text/javascript"></script>
+	<?php endforeach; ?>
+<?php endif; ?>
+
+<?php if (isset($_layoutParams['js']) && count($_layoutParams['js'])) : ?>
+	<?php foreach ($_layoutParams['js'] as $layoutjs) : ?>
+		<script src="<?php echo  $layoutjs ?>" type="text/javascript"></script>
+	<?php endforeach; ?>
+<?php endif; ?>
+
+</body>
+
+</html>

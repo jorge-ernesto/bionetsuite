@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="eS">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+
+    <?php if (isset($_layoutParams['cssGr']) && count($_layoutParams['cssGr'])) : ?>
+        <?php foreach ($_layoutParams['cssGr'] as $layoutcssGr) : ?>
+            <link rel="stylesheet" href="<?php echo  $layoutcssGr ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
+
+    <title>ORDEN DE PRODUCCION</title>
+</head>
+
+<body>
+    
