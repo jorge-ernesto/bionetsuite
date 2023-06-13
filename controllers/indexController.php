@@ -11,6 +11,7 @@ class indexController extends Controller
 	public function index()
 	{
 		echo "BIOMONT NETSUITE OK";
+		error_log("BIOMONT NETSUITE ERROR LOG OK");
 	}
 
 }
