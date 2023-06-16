@@ -13,6 +13,7 @@ class Database
 	private static $Connection2;
 	private static $Connection3;
 	private static $Connection4;
+	private static $Connection5;
 	
 	public function __construct() {
 
@@ -28,6 +29,7 @@ class Database
 		$this->open_Connection2();
 		$this->open_Connection3();
 		$this->open_Connection4();
+		$this->open_Connection5();
 		 
 	}
 	
@@ -153,7 +155,7 @@ class Database
 				include_once BASE_ROOT.'application/config.php';
 				include_once BASE_ROOT.'libs/adodb5/adodb.inc.php';
 	
-				self::$Connection4 = ADONewConnection(DB_ENGINE_mysql_3);
+				self::$Connection4 = ADONewConnection(DB_ENGINE_mysql_4);
 				self::$Connection4->Connect(DB_HOST_mysql_4,DB_USER_mysql_4,DB_PASS_mysql_4,DB_NAME_mysql_4);
 		
 			} catch (Exception $ex) {
@@ -171,6 +173,35 @@ class Database
 	
 	public static function get_Connection4() {
 		return self::$Connection4;
+	}
+	
+	/* CONEXION SQLSERVER */
+	public static function open_Connection5(){
+		if(!isset(self::$Connection5)){
+			try{
+	
+				include_once BASE_ROOT.'application/config.php';
+				include_once BASE_ROOT.'libs/adodb5/adodb.inc.php';
+	
+				self::$Connection5 = ADONewConnection(DB_ENGINE_mssql_5);
+				self::$Connection5->setConnectionParameter('characterSet','UTF-8');
+				self::$Connection5->Connect(DB_HOST_mssql_5,DB_USER_mssql_5,DB_PASS_mssql_5,DB_NAME_mssql_5);
+		
+			} catch (Exception $ex) {
+				print "ERROR: ".$ex->getMessage(). "<br>";
+				die();
+			}
+		}
+	}
+
+	public static function close_Connection5() {
+		if(isset(self::$Connection5)){
+			self::$Connection5 = null;
+		}
+	}
+	
+	public static function get_Connection5() {
+		return self::$Connection5;
 	}
 
 }
