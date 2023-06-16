@@ -52,3 +52,10 @@ define('DB_USER_mysql_4', 'root');
 define('DB_PASS_mysql_4', '');
 define('DB_NAME_mysql_4', 'bd_articulos');
 define('DB_ENGINE_mysql_4','mysqli');
+
+/* Conexion sqlserver */
+define('DB_HOST_mssql_5', 'SRV-SQL\SQLEXPRESS');
+define('DB_USER_mssql_5', 'sa');
+define('DB_PASS_mssql_5', 'Bi0m0nT1#S3r$2023');
+define('DB_NAME_mssql_5', 'NETSUITE');
+define('DB_ENGINE_mssql_5','mssqlnative');
