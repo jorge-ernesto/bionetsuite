@@ -33,6 +33,18 @@ abstract class Controller
 		}
 	}
 
+	public function loadHelper($helper)
+	{
+		$helper = $helper . '_helper';
+		$routeHelper = ROOT . 'helpers' . DS . $helper . '.php';
+
+		if (is_readable($routeHelper)) {
+			require_once $routeHelper;		
+		} else {
+			throw new Exception('Helper not found');
+		}
+	}
+
 	public function getLibrary($library)
 	{
 		$routeLibrary = ROOT . 'libs' . DS . $library . '.php';
