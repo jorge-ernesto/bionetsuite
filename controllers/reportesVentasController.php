@@ -19,7 +19,7 @@ class reportesVentasController extends Controller
      * Desde: 01/06/2023
      * Hasta: 30/06/2023
      */
-    public function getReporteVentasCostos() 
+    public function getReporteVentasCostos()
     {
         header('Access-Control-Allow-Origin: *');
 
@@ -296,13 +296,14 @@ class reportesVentasController extends Controller
         }
     }
 
-    public function getReporteVentasCostosTest() 
+    public function getReporteVentasCostosTest()
     {
         $objModel = $this->loadModel("reportesVentas");
         $dataVentasCostos = $objModel->getVentasCostosTest('01/01/2023', '30/05/2023');
     }
 
-    public function getCostos($dataVentasCostos) {
+    public function getCostos($dataVentasCostos)
+    {
         header('Access-Control-Allow-Origin: *');
 
         // Obtener datos
@@ -348,7 +349,7 @@ class reportesVentasController extends Controller
             }
         }
 
-        // Retornos array de ventas y array de costos
+        // Retornar arrays
         $response = array(
             "dataVentasCostos" => $dataVentasCostos,
             "dataCostos" => $dataCostosFormateado,
@@ -358,8 +359,8 @@ class reportesVentasController extends Controller
 
     /**
      * Proyecto 6082 - Reporte Descuentos sobre VTAS
-     * Desde: 01/04/2023
-     * Hasta: 30/04/2023
+     * Desde: 01/06/2023
+     * Hasta: 30/06/2023
      */
     public function getReporteDescuentoSobreVtas()
     {
@@ -831,7 +832,8 @@ class reportesVentasController extends Controller
         }
     }
 
-    public function getDescuentoVtasAgrupadoDetallado($dataDescuentoVtas) {
+    public function getDescuentoVtasAgrupadoDetallado($dataDescuentoVtas)
+    {
         $dataDescuentoVtasFormateado = array();
 
         // Obtenemos descuento
@@ -870,6 +872,321 @@ class reportesVentasController extends Controller
         // Retornos array de descuentos sobre ventas
         $response = array(
             "dataDescuentoVtas" => $dataDescuentoVtasFormateado,
+        );
+        return $response;
+    }
+
+    /**
+     * Proyecto 5187 - DATA DE MV IMPORTACIONES
+     * Desde: 01/06/2023
+     * Hasta: 30/06/2023
+     */
+    public function getReporteDamImportacionesDrawBack()
+    {
+        header('Access-Control-Allow-Origin: *');
+
+        $input = json_decode(file_get_contents("php://input"), true);
+
+        // Verificar datos
+        // error_log('Verificar datos');
+        // error_log(json_encode($input));
+        // die();
+
+        // Verificar datos
+        // $response = array(
+        //     'status' => 'error',
+        //     'input' => $input
+        // );
+        // echo json_encode($response);
+        // die();
+
+        if ($input['paramsRequest']['dateBegin'] != null && $input['paramsRequest']['dateEnd'] != null) {
+            ini_set('memory_limit', '-1');
+            ini_set('max_execution_time', '-1');
+
+            $dateBegin = $input['paramsRequest']['dateBegin'];
+            $dateEnd = $input['paramsRequest']['dateEnd'];
+            $codigo_articulo = $input['paramsRequest']['codigo_articulo'];
+            $linea_articulo = $input['paramsRequest']['linea_articulo'];
+            $mod = 'REPORTE_DAM_IMPORTACIONES_DRAWBACK';
+            $typeRep = 'reporteDamImportacionesDrawback';
+            $titleDocument = 'Reporte de DAM DE IMPORTACIONES';
+            // $titleDocument = 'Reporte de DAM DE IMPORTACIONES - DRAWBACK';
+
+            /*Obtenemos fecha en formato correcto*/
+            // $formatDateBegin = formatDate($dateBegin,4);
+            // $formatDateEnd = formatDate($dateEnd,4);
+            $formatDateBegin = $dateBegin;
+            $formatDateEnd = $dateEnd;
+            /*Cerrar Obtenemos fecha en formato correcto*/
+
+            $this->getLibrary('PHPExcel/Classes/PHPExcel');
+            $this->getLibrary('PHPExcel/Classes/PHPExcel/Reader/Excel5');
+            $this->getLibrary('PHPExcel/Classes/PHPExcel/Reader/Excel2007');
+
+            $objPHPExcel = new PHPExcel();
+
+            // Obtener datos
+            $objModel = $this->loadModel("reportesVentas");
+            error_log("Inicio de consulta");
+            $dataDamImportaciones = $objModel->getDamImportaciones($formatDateBegin, $formatDateEnd, $codigo_articulo, $linea_articulo);
+            error_log("Fin de consulta");
+
+            error_log("Inicio de conversion UTF8");
+            $dataDamImportaciones = utf8_encode_recursive($dataDamImportaciones);
+            error_log("Fin de conversion UTF8");
+
+            error_log("Inicio de obtener porcentaje advalorem");
+            $response = $this->getPorcentajeAdValorem($dataDamImportaciones);
+            $dataDamImportaciones = $response['dataDamImportaciones'];
+            $dataPorcentajeAdValorem = $response['dataPorcentajeAdValorem'];
+            error_log("Fin de obtener porcentaje advalorem");
+            // Cerrar Obtener datos
+
+            $objPHPExcel->getProperties()
+                                ->setCreator("Laboratorios Biomont") //Autor
+                                ->setLastModifiedBy("Laboratorios Biomont") //Ultimo usuario que lo modificó
+                                ->setTitle("Reporte de DAM DE IMPORTACIONES - DRAWBACK") //Título
+                                ->setSubject("Reporte de DAM DE IMPORTACIONES - DRAWBACK") //Asunto
+                                ->setDescription("Reporte de DAM DE IMPORTACIONES - DRAWBACK") //Descripción
+                                ->setKeywords("Reporte de DAM DE IMPORTACIONES - DRAWBACK") //Etiquetas
+                                ->setCategory("Reporte Excel"); //Categorías
+
+            $objPHPExcel->setActiveSheetIndex(0);
+            $objPHPExcel->getActiveSheet()->setTitle($titleDocument);
+            $objPHPExcel->getActiveSheet()->setCellValue('A1', appName());
+            $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(20);
+            $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:F1');
+            $objPHPExcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(30);
+
+            $objPHPExcel->getActiveSheet()->setCellValue('A3', 'Fechas');
+            $objPHPExcel->getActiveSheet()->setCellValue('B3', $dateBegin);
+            $objPHPExcel->getActiveSheet()->setCellValue('C3', $dateEnd);
+
+            $objPHPExcel->getActiveSheet()->setCellValue('A4', 'Reporte');
+            $objPHPExcel->getActiveSheet()->setCellValue('B4', $titleDocument);
+            
+            $row = 7;
+
+            //Formatemos tamaño de columnas
+            $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth('15'); 
+            $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('S')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('U')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('V')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('W')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('X')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('Y')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('Z')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setWidth('15'); //16
+            //Cerrar Formateamos tamaño de columnas
+            
+            error_log("Inicio de creacion de Excel");
+            //DATOS PARA MOSTRAR EN EXCEL
+                //Inicio de cabecera (tabla)
+                $objPHPExcel->getActiveSheet()->setCellValue('A'.$row, 'ID');
+                $objPHPExcel->getActiveSheet()->setCellValue('B'.$row, 'CODIGO');
+                $objPHPExcel->getActiveSheet()->setCellValue('C'.$row, 'DESCRIPCIÓN');
+                $objPHPExcel->getActiveSheet()->setCellValue('D'.$row, 'DUA');
+                $objPHPExcel->getActiveSheet()->setCellValue('E'.$row, 'FECHA RECEPCION');
+                $objPHPExcel->getActiveSheet()->setCellValue('F'.$row, 'CÓDIGO ADUANA');
+                $objPHPExcel->getActiveSheet()->setCellValue('G'.$row, 'AÑO');
+                $objPHPExcel->getActiveSheet()->setCellValue('H'.$row, 'NUMERO');
+                $objPHPExcel->getActiveSheet()->setCellValue('I'.$row, 'SERIE');
+                $objPHPExcel->getActiveSheet()->setCellValue('J'.$row, 'RÉGIMEN');
+                $objPHPExcel->getActiveSheet()->setCellValue('K'.$row, 'FECHA NUMERACIÓN');
+                $objPHPExcel->getActiveSheet()->setCellValue('L'.$row, 'SUBPARTIDA ARANCELARIA');
+                $objPHPExcel->getActiveSheet()->setCellValue('M'.$row, '% ADVALOREM');
+                $objPHPExcel->getActiveSheet()->setCellValue('N'.$row, 'ORIGEN');
+                $objPHPExcel->getActiveSheet()->setCellValue('O'.$row, 'NRO O/C');
+                $objPHPExcel->getActiveSheet()->setCellValue('P'.$row, 'RUC');
+                $objPHPExcel->getActiveSheet()->setCellValue('Q'.$row, 'PROVEEDOR');
+                $objPHPExcel->getActiveSheet()->setCellValue('R'.$row, 'FECHA FACTURA');
+                $objPHPExcel->getActiveSheet()->setCellValue('S'.$row, 'FACTURA');
+                $objPHPExcel->getActiveSheet()->setCellValue('T'.$row, 'MONEDA');
+                $objPHPExcel->getActiveSheet()->setCellValue('U'.$row, 'TIPO CAMBIO');
+                $objPHPExcel->getActiveSheet()->setCellValue('V'.$row, 'UNIDAD');
+                $objPHPExcel->getActiveSheet()->setCellValue('W'.$row, 'CANTIDAD (FACTURA)');
+                $objPHPExcel->getActiveSheet()->setCellValue('X'.$row, 'CANTIDAD (DAM)');
+                $objPHPExcel->getActiveSheet()->setCellValue('Y'.$row, 'PRECIO');
+                $objPHPExcel->getActiveSheet()->setCellValue('Z'.$row, 'TOTAL LINEA');
+                $objPHPExcel->getActiveSheet()->setCellValue('AA'.$row, 'TOTAL FACTURA');
+
+                $objPHPExcel->getActiveSheet()->getStyle('A'.$row.':AA'.$row)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+                $objPHPExcel->getActiveSheet()->getRowDimension($row)->setRowHeight(16);
+                $objPHPExcel->getActiveSheet()->getStyle('A'.$row.':AA'.$row)->applyFromArray(
+                    array(
+                        'fill' => array(
+                            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                            'color' => array('rgb' => '337ab7')
+                        ),
+                        'font' => array(
+                            'bold'  => true,
+                            'color' => array('rgb' => 'FFFFFF'),
+                            'size'  => 12,
+                            //'name'  => 'Verdana'
+                        )
+                    )
+                );              
+                $row++;                             
+                $objPHPExcel->getActiveSheet()->freezePane('A'.$row);
+                //Fin de cabecera (tabla)
+
+                //Ajustar el ancho de las columnas automáticamente
+                // $hoja = $objPHPExcel->getActiveSheet();
+                // foreach ($hoja->getColumnIterator() as $columna) {
+                //     $hoja->getColumnDimension($columna->getColumnIndex())->setAutoSize(true);
+                // }
+                //Fin Ajustar el ancho de las columnas automáticamente
+
+                //Inicio de cuerpo (tabla)
+                foreach ($dataDamImportaciones as $key => $importaciones) {
+                    $objPHPExcel->getActiveSheet()->setCellValue('A'.$row, $importaciones['ID']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('B'.$row, $importaciones['CODIGO']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('C'.$row, $importaciones['DESCRIPCION']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('D'.$row, $importaciones['DUA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('E'.$row, $importaciones['FECHA_RECEPCION']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('F'.$row, $importaciones['CODIGO_ADUANA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('G'.$row, $importaciones['ANIO']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('H'.$row, $importaciones['NUMERO']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('I'.$row, $importaciones['SERIE']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('J'.$row, $importaciones['REGIMEN']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('K'.$row, $importaciones['FECHA_NUMERACION']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('L'.$row, $importaciones['SUBPARTIDA_ARANCELARIA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('M'.$row, $importaciones['PORCENTAJE_AD_VALOREM']."%");
+                    $objPHPExcel->getActiveSheet()->setCellValue('N'.$row, $importaciones['ORIGEN']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('O'.$row, $importaciones['NRO_ORDEN_COMPRA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('P'.$row, $importaciones['RUC']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('Q'.$row, $importaciones['PROVEEDOR']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('R'.$row, $importaciones['FECHA_FACTURA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('S'.$row, $importaciones['NRO_FACTURA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('T'.$row, $importaciones['MONEDA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('U'.$row, $importaciones['T_CAMBIO']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('V'.$row, $importaciones['UNIDAD']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('W'.$row, $importaciones['CANTIDAD_FACTURA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('X'.$row, $importaciones['CANTIDAD_DAM']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('Y'.$row, $importaciones['PRECIO_LINEA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('Z'.$row, $importaciones['TOTAL_LINEA']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('AA'.$row, $importaciones['TOTAL_FACTURA']);
+                    $row++;
+                }
+                //Fin de cuerpo (tabla)
+            //CERRAR DATOS PARA MOSTRAR EN EXCEL
+            error_log("Fin de creacion de Excel");
+
+            /*
+            //GENERACION EXCEL
+            //componer nombre: biomont_TYPEREPORT_YYYYMMMDD_HHMMSS.xls
+            $comp = date('Ymd_His');
+            $filename='biomont_'.$typeRep.'_'.$comp.'.xls'; //save our workbook as this file name
+            header('Content-Type: application/vnd.ms-excel'); //mime type
+            header('Content-Disposition: attachment;filename="'.$filename.'"'); //tell browser what's the file name
+            header('Cache-Control: max-age=0'); //no cache
+
+            //save it to Excel5 format (excel 2003 .XLS file), change this to 'Excel2007' (and adjust the filename extension, also the header mime type)
+            //if you want to save it as .XLSX Excel 2007 format
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');  
+            //force user to download the Excel file without writing it to server's HD
+            $objWriter->save('php://output');
+            //CERRAR GENERACION EXCEL
+            //CERRAR GENERACION EXCEL
+            */
+
+            error_log("Inicio de guardado de Excel");
+            //GENERACION EXCEL Y GUARDARLO EN CARPETA
+            $comp = date('Ymd_His');
+            $filename='biomont_'.$typeRep.'_'.$comp.'.xls'; //save our workbook as this file name
+            $savePath = 'downloads/reportesVentas/'.$filename;
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');  
+            $objWriter->save($savePath);
+            //CERRAR GENERACION EXCEL Y GUARDARLO EN CARPETA
+            error_log("Fin de guardado de Excel");
+
+            // Construir el JSON con la ruta del archivo
+            $response = array(
+                'status' => 'success',
+                'dataDamImportaciones' => $dataDamImportaciones,
+                'dataPorcentajeAdValorem' => $dataPorcentajeAdValorem,
+                'ruta' => $savePath
+            );
+
+            // Devolver el JSON como respuesta
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode($response);
+        } else {
+            echo 'No';
+            //parametros vacios
+            //error 404
+        }
+    }
+
+    public function getPorcentajeAdValorem($dataDamImportaciones)
+    {
+        header('Access-Control-Allow-Origin: *');
+
+        // Obtener datos
+        $objModel = $this->loadModel("reportesVentas");
+        $dataPorcentajeAdValorem = $objModel->getPorcentajeAdValorem();
+        // Cerrar Obtener datos
+
+        // Verificar datos
+        // var_log($dataCostos);
+        // die();
+
+        // Formatear datos
+        $dataPorcentajeAdValoremFormateado = array();
+        foreach ($dataPorcentajeAdValorem as $key => $advalorem) {
+            $id_subpartida         = TRIM($advalorem['ID_SUBPARTIDA']);
+            $codigo_subpartida     = TRIM($advalorem['CODIGO_SUBPARTIDA']);
+            $porcentaje_ad_valorem = TRIM($advalorem['PORCENTAJE_AD_VALOREM']);
+
+            $dataPorcentajeAdValoremFormateado['CODIGO_SUBPARTIDA'][$codigo_subpartida] = $advalorem;
+        }
+
+        // Verificar datos
+        // var_log($dataPorcentajeAdValoremFormateado);
+        // die();
+
+        // Verificar datos
+        // echo "<pre>";
+        // echo json_encode($dataPorcentajeAdValoremFormateado);
+        // echo "</pre>";
+        // die();
+        
+        // Obtener costos en array de ventas
+        foreach ($dataDamImportaciones as $key => $importaciones) {
+            $codigo_subpartida = TRIM($importaciones['SUBPARTIDA_ARANCELARIA']);
+
+            $dataDamImportaciones[$key]['PORCENTAJE_AD_VALOREM'] = NULL;
+            if ( isset($dataPorcentajeAdValoremFormateado['CODIGO_SUBPARTIDA'][$codigo_subpartida]) ) {
+                $dataDamImportaciones[$key]['PORCENTAJE_AD_VALOREM'] = $dataPorcentajeAdValoremFormateado['CODIGO_SUBPARTIDA'][$codigo_subpartida]['PORCENTAJE_AD_VALOREM'];
+            }
+        }
+
+        // Retornar arrays
+        $response = array(
+            "dataDamImportaciones" => $dataDamImportaciones,
+            "dataPorcentajeAdValorem" => $dataPorcentajeAdValoremFormateado,
         );
         return $response;
     }

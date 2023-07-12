@@ -226,6 +226,8 @@ class recepcionDeArticuloModel extends Model
 			LEFT JOIN employee EP ON (EP.id=T.employee)
 			WHERE T.ID IN ('$id') and I.id='$codprod'
 			order by TL.linesequencenumber;";
+		error_log("SQL TransactionxCODPROD_ET_INGRESO");
+		error_log($sql);
 		$rs  = $this->_db->get_Connection()->Execute($sql);
 		$contador = $rs->RecordCount();
 		if (intval($contador) > 0) {

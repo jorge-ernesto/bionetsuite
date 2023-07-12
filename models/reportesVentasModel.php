@@ -384,4 +384,248 @@ class reportesVentasModel extends Model
 		return $datos;
 	}
 
+	public function getDamImportaciones($dateBegin, $dateEnd, $codigo_articulo, $linea_articulo)
+	{
+		/* Condicion de Articulo */
+		$where_codigo = '';
+		$codigo_articulo = TRIM($codigo_articulo);
+		if (!empty($codigo_articulo)) {
+			$where_codigo = "AND I.ITEMID IN ('$codigo_articulo')";
+		}
+		/* Cerrar */
+
+		/* Condicion de Linea de Articulo */
+		$where_linea_articulo = '';
+		$linea_articulo = TRIM($linea_articulo);
+		if (!empty($linea_articulo)) {
+			$where_linea_articulo = "AND L.NAME IN ('$linea_articulo')";
+		}
+		/* Cerrar */
+
+		$sql = "SELECT
+					-- INSUMO
+					T.ID,
+					I.ITEMID AS CODIGO,
+					I.DISPLAYNAME AS DESCRIPCION,
+					-- DAM DE IMPORTACION
+					T.custbody39 AS DUA,
+					TO_CHAR(T.TRANDATE,'DD/MM/YYYY') AS FECHA_RECEPCION,
+					T.custbodybio_cam_codigo_aduana_dam AS CODIGO_ADUANA,
+					TO_CHAR(T.custbodybio_cam_fecha_numeracion_dam,'yyyy') AS ANIO,
+					T.custbodybio_cam_numero_dam AS NUMERO,
+					TL.custcolbio_cam_serie_dam AS SERIE,
+					T.custbodybio_cam_regimen_dam AS REGIMEN,
+					TO_CHAR(T.custbodybio_cam_fecha_numeracion_dam,'DD/MM/YYYY') AS FECHA_NUMERACION,
+					TL.custcolbio_cam_subpartida_aran_dam AS SUBPARTIDA_ARANCELARIA,
+					-- ORDEN DE COMPRA
+					OPERTYPE.NAME AS ORIGEN,
+					TCAB_OC.TRANID AS NRO_ORDEN_COMPRA,
+					V.CUSTENTITY_BIO_PROVEEDOR_NUM_DOC AS RUC,
+					V.COMPANYNAME AS PROVEEDOR,
+					-- FACTURA DE COMPRA
+					CASE
+						WHEN TCAB_FAC.TRANDATE IS NOT NULL THEN TO_CHAR(TCAB_FAC.TRANDATE,'DD/MM/YYYY')
+						ELSE TO_CHAR(TCAB_FAC2.TRANDATE,'DD/MM/YYYY')
+					END AS FECHA_FACTURA,
+					CASE 
+						WHEN TCAB_FAC.TRANID IS NOT NULL THEN TCAB_FAC.TRANID
+						ELSE TCAB_FAC2.TRANID
+					END AS NRO_FACTURA,
+					CASE
+						WHEN TCAB_FAC.CURRENCY IS NOT NULL THEN (CASE TCAB_FAC.CURRENCY WHEN 1 THEN 'Soles' ELSE 'US Dollar' END)
+						ELSE (CASE TCAB_FAC2.CURRENCY WHEN 1 THEN 'Soles' ELSE 'US Dollar' END)
+					END AS MONEDA,
+					CASE
+						WHEN TCAB_FAC.EXCHANGERATE IS NOT NULL THEN TCAB_FAC.EXCHANGERATE
+						ELSE TCAB_FAC2.EXCHANGERATE
+					END AS T_CAMBIO,
+					UTO.ABBREVIATION AS UNIDAD,
+					CASE
+						WHEN TDET_FAC.QUANTITY IS NOT NULL THEN TDET_FAC.QUANTITY
+						ELSE TDET_FAC2.QUANTITY
+					END AS CANTIDAD_FACTURA,
+					CASE
+						WHEN UTO.ABBREVIATION = 'GLL' THEN (TL.QUANTITY/3.8)
+						WHEN UTO.ABBREVIATION = 'GR' THEN (TL.QUANTITY*1000)
+						WHEN UTO.ABBREVIATION = 'MIL' THEN (TL.QUANTITY/1000)
+						ELSE TL.QUANTITY
+					END AS CANTIDAD_DAM,
+					CASE
+						WHEN TDET_FAC.NETAMOUNT IS NOT NULL THEN (TDET_FAC.NETAMOUNT/TDET_FAC.QUANTITY)
+						ELSE (TDET_FAC2.NETAMOUNT/TDET_FAC2.QUANTITY)
+					END AS PRECIO_LINEA,
+					CASE
+						WHEN TDET_FAC.NETAMOUNT IS NOT NULL THEN TDET_FAC.NETAMOUNT
+						ELSE TDET_FAC2.NETAMOUNT
+					END AS TOTAL_LINEA,
+					CASE
+						WHEN TCAB_FAC.FOREIGNTOTAL IS NOT NULL THEN TCAB_FAC.FOREIGNTOTAL
+						ELSE TCAB_FAC2.FOREIGNTOTAL
+					END AS TOTAL_FACTURA,
+					NVL(L.NAME, ' ') LINEA
+				FROM
+					TRANSACTION T
+					INNER JOIN TRANSACTIONLINE TL                                       ON ( T.ID = TL.TRANSACTION )
+					INNER JOIN ITEM I                                                   ON ( TL.ITEM = I.ID )
+					LEFT JOIN CUSTOMLIST1334 L                                          ON ( I.CUSTITEM3 = L.ID )
+					LEFT JOIN CUSTOMRECORD_NS_PE_OPERATION_TYPE OPERTYPE                ON ( T.custbody_ns_pe_oper_type = OPERTYPE.ID )
+					LEFT JOIN ( SELECT ID, TRANID, ENTITY FROM TRANSACTION ) AS TCAB_OC ON ( TL.createdfrom = TCAB_OC.ID )    
+					LEFT JOIN unitsTypeUom UTO                                          ON ( TL.units = UTO.internalid )
+					LEFT JOIN VENDOR V                                                  ON ( TCAB_OC.ENTITY = V.ID )
+				
+					-- ENCONTRAMOS FACTURA CON MISMO ITEM Y CANTIDAD
+					LEFT JOIN (
+						SELECT
+							previousdoc, item, quantity, MIN(nextdoc) AS nextdoc
+						FROM 
+							TRANSACTIONLINE TLINE
+							INNER JOIN NextTransactionLineLink NTLINE ON ( TLINE.TRANSACTION = NTLINE.nextdoc )
+						WHERE
+							nexttype = 'VendBill' AND item IS NOT NULL
+						GROUP BY
+							previousdoc, item, quantity
+					) AS NTL ON ( TCAB_OC.ID = NTL.previousdoc AND TL.ITEM = NTL.ITEM AND TL.QUANTITY = NTL.QUANTITY )
+				
+					-- FACTURA CABECERA
+					LEFT JOIN (
+						SELECT ID, TRANID, TRANDATE, CURRENCY, EXCHANGERATE, (FOREIGNTOTAL*-1) AS FOREIGNTOTAL FROM TRANSACTION
+					) AS TCAB_FAC ON ( NTL.nextdoc = TCAB_FAC.ID )
+				
+					-- FACTURA DETALLE
+					LEFT JOIN (
+						SELECT
+							TRANSACTION, ITEM, SUM(CASE
+														WHEN unitsTypeUom.abbreviation = 'GLL' THEN (QUANTITY/3.8)
+														WHEN unitsTypeUom.abbreviation = 'GR' THEN (QUANTITY*1000)
+														WHEN unitsTypeUom.abbreviation = 'MIL' THEN (QUANTITY/1000)
+														ELSE QUANTITY
+													END) AS QUANTITY,
+												SUM(NETAMOUNT) AS NETAMOUNT
+						FROM
+							TRANSACTIONLINE
+							INNER JOIN ITEM ON ( TRANSACTIONLINE.ITEM = ITEM.ID )
+							LEFT JOIN unitsTypeUom ON ( TRANSACTIONLINE.units = unitsTypeUom.internalid )
+						WHERE
+							1 = 1
+							AND QUANTITY IS NOT NULL
+							AND UNITS IS NOT NULL
+							AND SUBSTR(ITEMID, 1, 2) IN ('MV', 'ME', 'MP')
+						GROUP BY 
+							TRANSACTION, ITEM
+					) AS TDET_FAC ON ( TCAB_FAC.ID = TDET_FAC.TRANSACTION AND TL.ITEM = TDET_FAC.ITEM )
+				
+					-- ENCONTRAMOS FACTURA CON MISMO ITEM
+					LEFT JOIN (
+						SELECT
+							previousdoc, item, MIN(nextdoc) AS nextdoc
+						FROM 
+							TRANSACTIONLINE TLINE
+							INNER JOIN NextTransactionLineLink NTLINE ON ( TLINE.TRANSACTION = NTLINE.nextdoc )
+						WHERE
+							nexttype = 'VendBill' AND item IS NOT NULL
+						GROUP BY
+							previousdoc, item
+					) AS NTL2 ON ( TCAB_OC.ID = NTL2.previousdoc AND TL.ITEM = NTL2.ITEM )
+				
+					-- FACTURA CABECERA
+					LEFT JOIN (
+						SELECT ID, TRANID, TRANDATE, CURRENCY, EXCHANGERATE, (FOREIGNTOTAL*-1) AS FOREIGNTOTAL FROM TRANSACTION
+					) AS TCAB_FAC2 ON ( NTL2.nextdoc = TCAB_FAC2.ID )
+				
+					-- FACTURA DETALLE
+					LEFT JOIN (
+						SELECT
+							TRANSACTION, ITEM, SUM(CASE
+														WHEN unitsTypeUom.abbreviation = 'GLL' THEN (QUANTITY/3.8)
+														WHEN unitsTypeUom.abbreviation = 'GR' THEN (QUANTITY*1000)
+														WHEN unitsTypeUom.abbreviation = 'MIL' THEN (QUANTITY/1000)
+														ELSE QUANTITY
+													END) AS QUANTITY,
+												SUM(NETAMOUNT) AS NETAMOUNT
+						FROM
+							TRANSACTIONLINE
+							INNER JOIN ITEM ON ( TRANSACTIONLINE.ITEM = ITEM.ID )
+							LEFT JOIN unitsTypeUom ON ( TRANSACTIONLINE.units = unitsTypeUom.internalid )
+						WHERE
+							1 = 1
+							AND QUANTITY IS NOT NULL
+							AND UNITS IS NOT NULL
+							AND SUBSTR(ITEMID, 1, 2) IN ('MV', 'ME', 'MP')
+						GROUP BY 
+							TRANSACTION, ITEM
+					) AS TDET_FAC2 ON ( TCAB_FAC2.ID = TDET_FAC2.TRANSACTION AND TL.ITEM = TDET_FAC2.ITEM )
+				WHERE
+					1 = 1
+					AND T.RECORDTYPE IN ('itemreceipt')
+					AND T.VOIDED = 'F'
+					AND TO_DATE(T.TRANDATE, 'dd/MM/yyyy') BETWEEN '$dateBegin' AND '$dateEnd'
+					-- FILTROS ADICIONALES
+					AND TL.QUANTITY IS NOT NULL
+					AND TL.UNITS IS NOT NULL
+					AND SUBSTR(I.ITEMID, 1, 2) IN ('MV', 'ME', 'MP')
+					AND OPERTYPE.id = '18'
+					-- FILTROS DINAMICOS
+					$where_codigo
+					$where_linea_articulo
+				ORDER BY
+					T.ID DESC;";
+
+		$rs = $this->_db->get_Connection()->Execute($sql);
+		$contador = $rs->RecordCount();
+		if (intval($contador) > 0) {
+			while (!$rs->EOF) {
+				$datos[] = [
+					"ID" => $rs->fields[0],
+					"CODIGO" => $rs->fields[1],
+					"DESCRIPCION" => $rs->fields[2],
+					"DUA" => $rs->fields[3],
+					"FECHA_RECEPCION" => $rs->fields[4],
+					"CODIGO_ADUANA" => $rs->fields[5],
+					"ANIO" => $rs->fields[6],
+					"NUMERO" => $rs->fields[7],
+					"SERIE" => $rs->fields[8],
+					"REGIMEN" => $rs->fields[9],
+					"FECHA_NUMERACION" => $rs->fields[10],
+					"SUBPARTIDA_ARANCELARIA" => $rs->fields[11],
+					"PORCENTAJE_AD_VALOREM" => NULL,
+					"ORIGEN" => $rs->fields[12],
+					"NRO_ORDEN_COMPRA" => $rs->fields[13],
+					"RUC" => $rs->fields[14],
+					"PROVEEDOR" => $rs->fields[15],
+					"FECHA_FACTURA" => $rs->fields[16],
+					"NRO_FACTURA" => $rs->fields[17],
+					"MONEDA" => $rs->fields[18],
+					"T_CAMBIO" => $rs->fields[19],
+					"UNIDAD" => $rs->fields[20],
+					"CANTIDAD_FACTURA" => $rs->fields[21],
+					"CANTIDAD_DAM" => $rs->fields[22],
+					"PRECIO_LINEA" => $rs->fields[23],
+					"TOTAL_LINEA" => $rs->fields[24],
+					"TOTAL_FACTURA" => $rs->fields[25],
+				];
+				$rs->MoveNext();
+			}
+		}
+		return $datos;
+	}
+
+	public function getPorcentajeAdValorem()
+	{
+		$sql = "EXEC dbo.NS_CN003_REPORTE_DRAWBACK_SP_SUBPARTIDAS;"; // dbo.NS_CN003_REPORTE_DRAWBACK_SP_SUBPARTIDAS
+
+		$rs = $this->_db->get_Connection5()->Execute($sql);
+		$contador = $rs->RecordCount();
+		if (intval($contador) > 0) {
+			while (!$rs->EOF) {
+				$datos[] = [
+					"ID_SUBPARTIDA" => $rs->fields[0],
+					"CODIGO_SUBPARTIDA" => $rs->fields[1],
+					"PORCENTAJE_AD_VALOREM" => $rs->fields[2],
+				];
+				$rs->MoveNext();
+			}
+		}
+		return $datos;
+	}
+
 }
