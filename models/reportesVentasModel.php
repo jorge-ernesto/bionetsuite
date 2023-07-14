@@ -432,8 +432,8 @@ class reportesVentasModel extends Model
 						ELSE TCAB_FAC2.TRANID
 					END AS NRO_FACTURA,
 					CASE
-						WHEN TCAB_FAC.CURRENCY IS NOT NULL THEN (CASE TCAB_FAC.CURRENCY WHEN 1 THEN 'Soles' ELSE 'US Dollar' END)
-						ELSE (CASE TCAB_FAC2.CURRENCY WHEN 1 THEN 'Soles' ELSE 'US Dollar' END)
+						WHEN TCAB_FAC.CURRENCY IS NOT NULL THEN (CASE WHEN TCAB_FAC.CURRENCY = 1 THEN 'Soles' WHEN TCAB_FAC.CURRENCY = 2 THEN 'US Dollar' ELSE '' END)
+						ELSE (CASE WHEN TCAB_FAC2.CURRENCY = 1 THEN 'Soles' WHEN TCAB_FAC2.CURRENCY = 2 THEN 'US Dollar' ELSE '' END)
 					END AS MONEDA,
 					CASE
 						WHEN TCAB_FAC.EXCHANGERATE IS NOT NULL THEN TCAB_FAC.EXCHANGERATE
@@ -462,7 +462,8 @@ class reportesVentasModel extends Model
 						WHEN TCAB_FAC.FOREIGNTOTAL IS NOT NULL THEN TCAB_FAC.FOREIGNTOTAL
 						ELSE TCAB_FAC2.FOREIGNTOTAL
 					END AS TOTAL_FACTURA,
-					NVL(L.NAME, ' ') LINEA
+					NVL(L.NAME, ' ') LINEA,
+					T.TRANID AS NRO_REC
 				FROM
 					TRANSACTION T
 					INNER JOIN TRANSACTIONLINE TL                                       ON ( T.ID = TL.TRANSACTION )
@@ -602,6 +603,8 @@ class reportesVentasModel extends Model
 					"PRECIO_LINEA" => $rs->fields[23],
 					"TOTAL_LINEA" => $rs->fields[24],
 					"TOTAL_FACTURA" => $rs->fields[25],
+					"LINEA" => $rs->fields[26],
+					"NRO_REC" => $rs->fields[27],
 				];
 				$rs->MoveNext();
 			}
