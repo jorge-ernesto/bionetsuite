@@ -911,7 +911,7 @@ class reportesVentasController extends Controller
             $mod = 'REPORTE_DAM_IMPORTACIONES_DRAWBACK';
             $typeRep = 'reporteDamImportacionesDrawback';
             $titleDocument = 'Reporte de DAM DE IMPORTACIONES';
-            // $titleDocument = 'Reporte de DAM DE IMPORTACIONES - DRAWBACK';
+            $titleDocument_ = 'Reporte de DAM DE IMPORTACIONES - DRAWBACK';
 
             /*Obtenemos fecha en formato correcto*/
             // $formatDateBegin = formatDate($dateBegin,4);
@@ -966,7 +966,7 @@ class reportesVentasController extends Controller
             $objPHPExcel->getActiveSheet()->setCellValue('C3', $dateEnd);
 
             $objPHPExcel->getActiveSheet()->setCellValue('A4', 'Reporte');
-            $objPHPExcel->getActiveSheet()->setCellValue('B4', $titleDocument);
+            $objPHPExcel->getActiveSheet()->setCellValue('B4', $titleDocument_);
             
             $row = 7;
 
@@ -998,12 +998,42 @@ class reportesVentasController extends Controller
             $objPHPExcel->getActiveSheet()->getColumnDimension('Y')->setWidth('15'); //16
             $objPHPExcel->getActiveSheet()->getColumnDimension('Z')->setWidth('15'); //16
             $objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setWidth('15'); //16
+            $objPHPExcel->getActiveSheet()->getStyle('A:B')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $objPHPExcel->getActiveSheet()->getStyle('D:P')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $objPHPExcel->getActiveSheet()->getStyle('R:AA')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
             //Cerrar Formateamos tamaño de columnas
             
             error_log("Inicio de creacion de Excel");
             //DATOS PARA MOSTRAR EN EXCEL
                 //Inicio de cabecera (tabla)
-                $objPHPExcel->getActiveSheet()->setCellValue('A'.$row, 'ID');
+                $objPHPExcel->getActiveSheet()->setCellValue('A'.$row, 'INSUMO');
+                $objPHPExcel->getActiveSheet()->setCellValue('D'.$row, 'DAM DE IMPORTACIÓN');
+                $objPHPExcel->getActiveSheet()->setCellValue('N'.$row, 'ORDEN DE COMPRA Y FACTURA');
+
+                $objPHPExcel->getActiveSheet()->mergeCells('A'.$row.':C'.$row);
+                $objPHPExcel->getActiveSheet()->mergeCells('D'.$row.':M'.$row);
+                $objPHPExcel->getActiveSheet()->mergeCells('N'.$row.':AA'.$row);
+                $objPHPExcel->getActiveSheet()->getStyle('A'.$row.':AA'.$row)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+                $objPHPExcel->getActiveSheet()->getRowDimension($row)->setRowHeight(20);
+                $objPHPExcel->getActiveSheet()->getStyle('A'.$row.':AA'.$row)->applyFromArray(
+                    array(
+                        'fill' => array(
+                            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                            'color' => array('rgb' => '337ab7')
+                        ),
+                        'font' => array(
+                            'bold'  => true,
+                            'color' => array('rgb' => 'FFFFFF'),
+                            'size'  => 12,
+                            //'name'  => 'Verdana'
+                        )
+                    )
+                );              
+                $row++;
+
+                //Inicio de cabecera (tabla)
+                $objPHPExcel->getActiveSheet()->setCellValue('A'.$row, 'NRO REC');
                 $objPHPExcel->getActiveSheet()->setCellValue('B'.$row, 'CODIGO');
                 $objPHPExcel->getActiveSheet()->setCellValue('C'.$row, 'DESCRIPCIÓN');
                 $objPHPExcel->getActiveSheet()->setCellValue('D'.$row, 'DUA');
@@ -1023,7 +1053,7 @@ class reportesVentasController extends Controller
                 $objPHPExcel->getActiveSheet()->setCellValue('R'.$row, 'FECHA FACTURA');
                 $objPHPExcel->getActiveSheet()->setCellValue('S'.$row, 'FACTURA');
                 $objPHPExcel->getActiveSheet()->setCellValue('T'.$row, 'MONEDA');
-                $objPHPExcel->getActiveSheet()->setCellValue('U'.$row, 'TIPO CAMBIO');
+                $objPHPExcel->getActiveSheet()->setCellValue('U'.$row, 'T.C.');
                 $objPHPExcel->getActiveSheet()->setCellValue('V'.$row, 'UNIDAD');
                 $objPHPExcel->getActiveSheet()->setCellValue('W'.$row, 'CANTIDAD (FACTURA)');
                 $objPHPExcel->getActiveSheet()->setCellValue('X'.$row, 'CANTIDAD (DAM)');
@@ -1053,15 +1083,17 @@ class reportesVentasController extends Controller
                 //Fin de cabecera (tabla)
 
                 //Ajustar el ancho de las columnas automáticamente
-                // $hoja = $objPHPExcel->getActiveSheet();
-                // foreach ($hoja->getColumnIterator() as $columna) {
-                //     $hoja->getColumnDimension($columna->getColumnIndex())->setAutoSize(true);
-                // }
+                $hoja = $objPHPExcel->getActiveSheet();
+                foreach ($hoja->getColumnIterator() as $columna) {
+                    if ($columna->getColumnIndex() != 'B') { // No quiero que aplique autosize a la columna B
+                        $hoja->getColumnDimension($columna->getColumnIndex())->setAutoSize(true);
+                    }
+                }
                 //Fin Ajustar el ancho de las columnas automáticamente
 
                 //Inicio de cuerpo (tabla)
                 foreach ($dataDamImportaciones as $key => $importaciones) {
-                    $objPHPExcel->getActiveSheet()->setCellValue('A'.$row, $importaciones['ID']);
+                    $objPHPExcel->getActiveSheet()->setCellValue('A'.$row, $importaciones['NRO_REC']);
                     $objPHPExcel->getActiveSheet()->setCellValue('B'.$row, $importaciones['CODIGO']);
                     $objPHPExcel->getActiveSheet()->setCellValue('C'.$row, $importaciones['DESCRIPCION']);
                     $objPHPExcel->getActiveSheet()->setCellValue('D'.$row, $importaciones['DUA']);
@@ -1083,11 +1115,24 @@ class reportesVentasController extends Controller
                     $objPHPExcel->getActiveSheet()->setCellValue('T'.$row, $importaciones['MONEDA']);
                     $objPHPExcel->getActiveSheet()->setCellValue('U'.$row, $importaciones['T_CAMBIO']);
                     $objPHPExcel->getActiveSheet()->setCellValue('V'.$row, $importaciones['UNIDAD']);
-                    $objPHPExcel->getActiveSheet()->setCellValue('W'.$row, $importaciones['CANTIDAD_FACTURA']);
-                    $objPHPExcel->getActiveSheet()->setCellValue('X'.$row, $importaciones['CANTIDAD_DAM']);
-                    $objPHPExcel->getActiveSheet()->setCellValue('Y'.$row, $importaciones['PRECIO_LINEA']);
-                    $objPHPExcel->getActiveSheet()->setCellValue('Z'.$row, $importaciones['TOTAL_LINEA']);
-                    $objPHPExcel->getActiveSheet()->setCellValue('AA'.$row, $importaciones['TOTAL_FACTURA']);
+
+                    $cantidad_factura = $importaciones['CANTIDAD_FACTURA'];
+                    $cantidad_dam     = $importaciones['CANTIDAD_DAM'];
+                    $precio_linea     = $importaciones['PRECIO_LINEA'];
+                    $total_linea      = $importaciones['TOTAL_LINEA'];
+                    $total_factura    = $importaciones['TOTAL_FACTURA'];
+
+                    $cantidad_factura = isset($cantidad_factura) ? number_format($cantidad_factura, 2, '.', ',') : $cantidad_factura;
+                    $cantidad_dam     = isset($cantidad_dam)     ? number_format($cantidad_dam, 2, '.', ',')     : $cantidad_dam;
+                    $precio_linea     = isset($precio_linea)     ? number_format($precio_linea, 2, '.', ',')     : $precio_linea;
+                    $total_linea      = isset($total_linea)      ? number_format($total_linea, 2, '.', ',')      : $total_linea;
+                    $total_factura    = isset($total_factura)    ? number_format($total_factura, 2, '.', ',')    : $total_factura;
+
+                    $objPHPExcel->getActiveSheet()->setCellValue('W'.$row, $cantidad_factura);
+                    $objPHPExcel->getActiveSheet()->setCellValue('X'.$row, $cantidad_dam);
+                    $objPHPExcel->getActiveSheet()->setCellValue('Y'.$row, $precio_linea);
+                    $objPHPExcel->getActiveSheet()->setCellValue('Z'.$row, $total_linea);
+                    $objPHPExcel->getActiveSheet()->setCellValue('AA'.$row, $total_factura);
                     $row++;
                 }
                 //Fin de cuerpo (tabla)
