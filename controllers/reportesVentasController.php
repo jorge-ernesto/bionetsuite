@@ -839,12 +839,12 @@ class reportesVentasController extends Controller
             $tipo_doc = TRIM($ventas['TIPO_DOC']);
             $codigo   = TRIM($ventas['CODIGO']);
 
-            // if ($tipo_doc == "Nota de credito" && ($codigo == "VAR0000003" || $codigo == "VAR0000013")) {
-            //     $dataDescuentoVtas[$key]['DESCUENTO'] = ABS($ventas['IMPORTE_BRUTO_SOLES']);
-            //     $dataDescuentoVtas[$key]['IMPORTE_BRUTO_SOLES'] = 0;
-            // } else {
+            if ($tipo_doc == "Nota de credito" && ($codigo == "VAR0000003" || $codigo == "VAR0000013" || $codigo == "VAR0000067" || $codigo == "VAR0000008")) {
+                $dataDescuentoVtas[$key]['DESCUENTO'] = ABS($ventas['IMPORTE_BRUTO_SOLES']);
+                $dataDescuentoVtas[$key]['IMPORTE_BRUTO_SOLES'] = 0;
+            } else {
                 $dataDescuentoVtas[$key]['DESCUENTO'] = $ventas['IMPORTE_BRUTO_SOLES'] - $ventas['IMPORTE_NETO_SOLES'];
-            // }
+            }
         }
 
         // Formateamos array
