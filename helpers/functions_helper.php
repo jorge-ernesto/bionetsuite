@@ -32,6 +32,9 @@ function var_log($data){
     echo "</pre>";
 }
 
+/**
+ * Convertir recursivamente todos los valores de texto de un array multidimensional al formato UTF-8
+ */
 function utf8_encode_recursive($array) {
     foreach ($array as &$value) {
         if (is_array($value)) {
