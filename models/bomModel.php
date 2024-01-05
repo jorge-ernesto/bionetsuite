@@ -125,4 +125,21 @@ class bomModel extends Model
 		return $datos;
 	}
 	
+	public function queryMysql($id_ot)
+	{
+		$sql = "SELECT componente,cantidad FROM tb_registro_cantidad where id_ot='$id_ot'";
+		$rs  = $this->_db->get_Connection1()->Execute($sql);
+		$contador = $rs->RecordCount();
+		if (intval($contador) > 0) {
+			while (!$rs->EOF) {
+				$datos[] = [
+					"componente_mysql"	=> $rs->fields[0],
+					"cantidad_mysql"	=> $rs->fields[1],
+				];
+				$rs->MoveNext();
+			}
+		}
+		return $datos;
+	}
+	
 }

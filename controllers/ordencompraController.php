@@ -122,8 +122,8 @@ class ordencompraController extends Controller
 		if($input['dato']['estado_aprobacion']==="Aprobado" && 
 			($input['dato']['proximo_aprobador']==="ALDO JESUS PEDRAGLIO BELMONT" || $input['dato']['proximo_aprobador']==="ALDO SANTIAGO PEDRAGLIO DE COSSIO" || $input['dato']['proximo_aprobador']==="ALDO SANTIAGO PEDRAGLIO DE COSSIO")
 		){
-			$aprobador_2 = "CESAR BONILLA BENITO";
-			$cargo_2 = "Jefe de Logística";
+			$aprobador_2 = "LILIAN BASUALDO SOTO";
+			$cargo_2 = "Supervisor de Logística";
 		}
 
 		
@@ -390,8 +390,8 @@ class ordencompraController extends Controller
 		if($input['dato']['estado_aprobacion']==="Aprobado" && 
 			($input['dato']['proximo_aprobador']==="ALDO JESUS PEDRAGLIO BELMONT" || $input['dato']['proximo_aprobador']==="ALDO SANTIAGO PEDRAGLIO DE COSSIO" || $input['dato']['proximo_aprobador']==="ALDO SANTIAGO PEDRAGLIO DE COSSIO")
 		){
-			$aprobador_2 = "CESAR BONILLA BENITO";
-			$cargo_2 = "Jefe de Logística";
+			$aprobador_2 = "LILIAN BASUALDO SOTO";
+			$cargo_2 = "Supervisor de Logística";
 		}
 
 		

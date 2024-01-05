@@ -10,13 +10,16 @@ class recepcionDeArticuloModel extends Model
 	
 	public function getUltimosCorrelativosNumeroAnalisis()
 	{
-		$sql_MP = "SELECT correlativo FROM tb_linea WHERE id=1;";
+		//$sql_MP = "SELECT correlativo FROM tb_linea WHERE id=1;";
+		$sql_MP = "SELECT correlativo FROM tb_linea WHERE id=4;";
 		$rs_MP = $this->_db->get_Connection2()->Execute($sql_MP);
 		
-		$sql_ME = "SELECT correlativo FROM tb_linea WHERE id=2;";
+		//$sql_ME = "SELECT correlativo FROM tb_linea WHERE id=2;";
+		$sql_ME = "SELECT correlativo FROM tb_linea WHERE id=5;";
 		$rs_ME = $this->_db->get_Connection2()->Execute($sql_ME);
 		
-		$sql_MCI = "SELECT correlativo FROM tb_linea WHERE id=3;";
+		//$sql_MCI = "SELECT correlativo FROM tb_linea WHERE id=3;";
+		$sql_MCI = "SELECT correlativo FROM tb_linea WHERE id=6;";
 		$rs_MCI = $this->_db->get_Connection2()->Execute($sql_MCI);
 
 		return $rs_MP->fields[0]."/".$rs_ME->fields[0]."/".$rs_MCI->fields[0];
@@ -25,19 +28,22 @@ class recepcionDeArticuloModel extends Model
 	public function getCorrelativo($codevaluar)
 	{
 		$sql = "SELECT L.id, L.correlativo
-			FROM tb_condicion_test C
+			FROM tb_condicion C
 			INNER JOIN tb_linea L on L.id=C.id_linea 
-			WHERE C.inicial='$codevaluar'";
+			WHERE C.inicial='$codevaluar' and L.anio=2024;";
 		$rs  = $this->_db->get_Connection2()->Execute($sql);
 		
 		switch(intval($rs->fields[0])){
 			case 1:
+			case 4:
 				$linea = 'MP';
 				break;
 			case 2:
+			case 5:
 				$linea = 'ME';
 				break;
 			case 3:
+			case 6:
 				$linea = 'MCI';
 				break;
 		}
@@ -47,10 +53,10 @@ class recepcionDeArticuloModel extends Model
 	public function updateCorrelativoNumeroAnalisis($linea,$correlativo)
 	{
 		if($this->_db->get_Connection2()){
-			$sql = "SELECT id_linea FROM tb_condicion WHERE inicial='".$linea."';";
+			$sql = "SELECT id_linea FROM tb_condicion WHERE inicial='".$linea."' and id_linea > 3;";
 			$rs = $this->_db->get_Connection2()->Execute($sql);
 			
-			$sql1 = "UPDATE tb_linea SET correlativo=".intval($correlativo)." WHERE id=".intval($rs->fields[0]).";";
+			$sql1 = "UPDATE tb_linea SET correlativo=".intval($correlativo)." WHERE id=".intval($rs->fields[0])." and anio=2024;";
 			$rs1 = $this->_db->get_Connection2()->Execute($sql1);
 			
 			return $rs1;
@@ -136,18 +142,18 @@ class recepcionDeArticuloModel extends Model
 			L.fullname AS AlmacenDestino,
 			TL.custcol8 as observacion
 			FROM (
-				SELECT id,item,Transaction,custcol8,quantity,inventoryreportinglocation
+				SELECT id,item,Transaction,custcol8,quantity,inventoryreportinglocation,units
 				FROM TransactionLine 
 				WHERE transaction IN ('$id')
 				) TL
 			INNER JOIN (
-				SELECT id,itemid,consumptionunit,description,displayname 
+				SELECT id,itemid,consumptionunit,description,displayname , saleunit
 				FROM Item
 				) I ON ( I.id = TL.item )
 			INNER JOIN (
 				SELECT internalid,abbreviation 
 				FROM unitsTypeUom
-				) U ON ( U.internalid=I.consumptionunit )
+				) U ON ( U.internalid=I.saleunit )
 			INNER JOIN (
 				SELECT transaction,transactionline,inventorynumber,quantity 
 				FROM inventoryAssignment
@@ -167,14 +173,14 @@ class recepcionDeArticuloModel extends Model
 				$datos[] = [
 					"idTransaccion"		=> $rs->fields[0],
 					"codigo"			=> $rs->fields[1],
-					"descripcion1"	 	=> utf8_decode($rs->fields[2]),
-					"descripcion2"	 	=> utf8_decode($rs->fields[3]),
+					"descripcion1"	 	=> $rs->fields[2],
+					"descripcion2"	 	=> $rs->fields[3],
 					"cantidadDetalle"	=> $rs->fields[4],
 					"unidad"	 		=> utf8_decode(utf8_encode($rs->fields[5])),
 					"SerieLote"	 		=> $rs->fields[6],
 					"FechaVencimiento"	=> date("d/m/Y",strtotime($rs->fields[7])),
-					"almacenDestino"	=> utf8_decode($rs->fields[8]),
-					"observacion"	 	=> utf8_decode($rs->fields[9]),
+					"almacenDestino"	=> $rs->fields[8],
+					"observacion"	 	=> $rs->fields[9],
 				];
 				$rs->MoveNext();
 			}
@@ -316,7 +322,8 @@ class recepcionDeArticuloModel extends Model
 		EP.lastname,
 		TL.linesequencenumber,
 		TRIM(I.custitem_ns_pe_cod_unit_med) as undPrincipal,
-		TRIM(TL.custcol18) as memoControl 
+		TRIM(TL.custcol18) as memoControl,
+		TL.custcol30 as fec_analisis
 		FROM Transaction T
 		INNER JOIN TransactionLine TL ON ( TL.Transaction = T.ID )
 		INNER JOIN Item I ON ( I.ID = TL.Item )
@@ -330,6 +337,7 @@ class recepcionDeArticuloModel extends Model
 		LEFT JOIN employee EP ON (EP.id=T.employee)
 		WHERE T.ID IN ('$id') and I.id='$codprod'
 		order by TL.linesequencenumber;";
+		//I.consumptionunit  TL.units linea 323
 		$rs  = $this->_db->get_Connection()->Execute($sql);
 		$contador = $rs->RecordCount();
 		if (intval($contador) > 0) {
@@ -361,6 +369,7 @@ class recepcionDeArticuloModel extends Model
 					"linesequencenumber"	=> $rs->fields[23],
 					"undPrincipal"			=> $rs->fields[24],
 					"memoControl"			=> utf8_encode($rs->fields[25]),
+					"fec_analisis"			=> $rs->fields[26],
 				];
 				$rs->MoveNext();
 			}
@@ -421,7 +430,8 @@ class recepcionDeArticuloModel extends Model
 		EP.firstname,
 		EP.lastname,
 		TL.linesequencenumber,
-		TRIM(I.custitem_ns_pe_cod_unit_med) as undPrincipal
+		TRIM(I.custitem_ns_pe_cod_unit_med) as undPrincipal,
+		TL.custcol30 as fecha_analisis
 		FROM Transaction T
 		INNER JOIN TransactionLine TL ON ( TL.Transaction = T.ID )
 		INNER JOIN Item I ON ( I.ID = TL.Item )
@@ -466,6 +476,7 @@ class recepcionDeArticuloModel extends Model
 					"lastname"				=> utf8_encode($rs->fields[23]),
 					"linesequencenumber"	=> $rs->fields[24],
 					"undPrincipal"			=> $rs->fields[25],
+					"fecha_analisis"		=> $rs->fields[26],
 				];
 				$rs->MoveNext();
 			}

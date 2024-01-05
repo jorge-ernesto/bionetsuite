@@ -77,7 +77,7 @@ class revisionLMModel extends Model
 			inner join item I on (I.id=BRC.item)
 			inner join unitsTypeUom U ON (U.internalid=I.consumptionunit)
 			where BRC.bomrevision='$id' 
-			order by I.expenseaccount asc, I.fullname desc;";
+			order by BRC.id asc;";
 		$rs  = $this->_db->get_Connection()->Execute($sql);
 		$contador = $rs->RecordCount();
 		if (intval($contador) > 0) {
@@ -134,7 +134,8 @@ class revisionLMModel extends Model
 			LOWER(TO_CHAR(BR.createddate,'DD/MM/YYYY HH24:MI:SS AM')) as fechaCreado,
 			B.name as nombreListaMateriales,
 			BR.name as nombreRevision,
-			BR.memo as productoBulkLinea 
+			BR.memo as productoBulkLinea,
+			(CASE WHEN BR.isinactive='T' THEN 'SI' ELSE 'NO' END) as inactivo
 			from bomrevision BR
 			inner join bom B on (B.id=BR.billofmaterials)
 			order by B.id asc, BR.id asc;";
@@ -156,6 +157,7 @@ class revisionLMModel extends Model
 					"nombreListaMateriales"	=> utf8_encode($rs->fields[10]),
 					"nombreRevision"	 	=> utf8_encode($rs->fields[11]),
 					"productoBulkLinea"	 	=> utf8_encode($rs->fields[12]),
+					"inactivo"	 			=> $rs->fields[13],
 				];
 				$rs->MoveNext();
 			}

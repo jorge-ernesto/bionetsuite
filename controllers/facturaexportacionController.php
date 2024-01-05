@@ -109,7 +109,7 @@ class facturaexportacionController extends Controller
 			
 			$numFactura = explode("-",str_replace("FA ","",trim($cabecera_FE[0]['numFactura'])));
 			
-			$contenido = "20100278708|01|".$numFactura[0]."|".$numFactura[1]."|0.00|".number_format($cabecera_FE[0]['importeTotal'],2,'.','')."|".date("Y-m-d",strtotime($cabecera_FE[0]['fecEmision']))."|0|".$cabecera_FE[0]['docCliente']."|".$hash."|";
+			$contenido = "20100278708|01|".$numFactura[0]."|".$numFactura[1]."|0.00|".number_format($cabecera_FE[0]['importeTotal'],2,'.','')."|".explode("/", $cabecera_FE[0]['fecEmision'])[2]."-".explode("/", $cabecera_FE[0]['fecEmision'])[1]."-".explode("/", $cabecera_FE[0]['fecEmision'])[0]."|0|".$cabecera_FE[0]['docCliente']."|".$hash."|";
 			
 			QRcode::png($contenido,$filename,$level,$tamano,$framSize);
 		}else{

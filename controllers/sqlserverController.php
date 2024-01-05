@@ -15,6 +15,10 @@ class sqlserverController extends Controller
 	
 	public function procesoReporteVenta(){
 		
+		/*$objModel = $this->loadModel("sqlserver");
+		$result_oracle = $objModel->getOracle();
+		print_r($result_oracle);*/
+		
 		$objModel = $this->loadModel("sqlserver");
 		$result_oracle = $objModel->getOracle();
 		

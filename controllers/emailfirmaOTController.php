@@ -119,7 +119,7 @@ class emailfirmaOTController extends Controller
 		if($input["dato"]['email']=='ajuste'){
 			$asunto="Notificación de Orden de Trabajo - Sistema NetSuite";
 			//$emails = ["jpena@biomont.com.pe","fcastro@biomont.com.pe"];
-			$emails = ["jpena@biomont.com.pe","cpomiano@biomont.com.pe","mramirez@biomont.com.pe","mmancilla@biomont.com.pe","aquinones@biomont.com.pe"];
+			$emails = ["jpena@biomont.com.pe","mramirez@biomont.com.pe","mmancilla@biomont.com.pe","aquinones@biomont.com.pe","selias@biomont.com.pe","dguzman@biomont.com.pe"];
 			
 			$mailContent	  = "<div class='row'>
 							<h1 style='color:#45556E;'>Notificación de NetSuite</h1>
@@ -168,7 +168,7 @@ class emailfirmaOTController extends Controller
 		else if($input["dato"]['email']=='todos'){
 			$asunto="El usuario ".$input["dato"]['firmante']." ha ".$input["dato"]['accion']." la Orden de Trabajo ".$input["dato"]['numOP'];
 			//$emails = ["jpena@biomont.com.pe","fcastro@biomont.com.pe"];
-			$emails = ["jpena@biomont.com.pe","mramirez@biomont.com.pe","vgalan@biomont.com.pe","mmancilla@biomont.com.pe","csuncion@biomont.com.pe","mperez@biomont.com.pe"];
+			$emails = ["jpena@biomont.com.pe","mramirez@biomont.com.pe","mmancilla@biomont.com.pe","csuncion@biomont.com.pe","mperez@biomont.com.pe","selias@biomont.com.pe","dguzman@biomont.com.pe"];
 			
 			$mailContent	  = "<div class='row'>
 							<h1 style='color:#45556E;'>Notificación de NetSuite</h1>
@@ -220,8 +220,8 @@ class emailfirmaOTController extends Controller
 									</tr>";	
 							foreach($input["dato"]['articulos'] as $art){
 		$mailContent		.=		"<tr>
-										<td style='border:1px solid black;padding:3px;'>".$art[0]."</td>
-										<td style='border:1px solid black;padding:3px;'>".$art[1]."</td>
+										<td style='border:1px solid black;padding:3px;'>".$art['codigo']."</td>
+										<td style='border:1px solid black;padding:3px;'>".$art['descripcion']."</td>
 									</tr>";					
 							}
 		$mailContent		.=	"</table>						

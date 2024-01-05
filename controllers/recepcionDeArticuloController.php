@@ -481,18 +481,41 @@ class recepcionDeArticuloController extends Controller
 				$fecha_ven = explode('|',$dat['arreglo'])[1];
 			}
 			
-			if($peso!=""){
-				$cant =$dat['quantity'];
-			}else{
-				$cant = explode('|',$dat['arreglo'])[2];
+			if(isset($dat['fec_analisis'])){
+				$fecha_ven=$dat['fec_analisis'];
 			}
+			
+			if($input['obj']['id_recep']==1296009){
+				if($peso==""){
+					$cant =$dat['quantity'];
+				}else{
+					$cant = explode('|',$dat['arreglo'])[2];
+				}
+			}else{
+				if($peso!=""){
+					$cant =$dat['quantity'];
+				}else{
+					$cant = explode('|',$dat['arreglo'])[2];
+				}
+			}
+			
+			if($dat['TranID']==4149){
+				$unidad = "KG";
+			}else{
+				$unidad = $dat['abbreviation'];
+			}
+			
 			
 			switch($dat['undPrincipal']){
 				case 'NIU':
 				case 'KGM':
 					switch($dat['abbreviation']){
 						case 'GR':
-							$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
+						case 'UND':
+						case 'KG':
+							//$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]);
+							//$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
+							$cant_aprobada = $cant;
 							break;
 						default:
 							$cant_aprobada = $cant;
@@ -514,7 +537,14 @@ class recepcionDeArticuloController extends Controller
 					break;	
 			}
 			
-			$cant_aprobada = str_replace(",","",$cant_aprobada);
+			//$cant_aprobada = str_replace(",","",$cant_aprobada);
+
+			/*$cant_aprobada = str_replace(",","",explode('|',$dat['arreglo'])[2]);*/
+
+			//$cant_aprobada = explode('|',str_replace(",","",$dat['arreglo']))[2];
+			//$cant_aprobada = floatval($dat['quantity']*1000);
+			
+			
 		
 			$mpdf->SetDefaultFont("Arial");
 			
@@ -560,7 +590,7 @@ class recepcionDeArticuloController extends Controller
 						<td style='width:22%;font-size: 11px;padding:2px 2px 2px 2px;'>".$num_analisis."</td>
 						<td style='width:32%;font-size: 11px;font-weight:bold;padding:2px 2px 2px 2px;'>CANT. APROBADA</td>
 						<td style='width:1%;font-size: 11px;font-weight:bold;padding:2px 2px 2px 2px;'>:</td>
-						<td style='width:22%;font-size: 11px;padding:2px 2px 2px 2px;'>".$cant_aprobada." ".$dat['abbreviation']."</td>
+						<td style='width:22%;font-size: 11px;padding:2px 2px 2px 2px;'>".$cant_aprobada." ".$unidad."</td>
 					</tr>
 					<tr>
 						<td style='width:24%;font-size: 11px;font-weight:bold;padding:2px 2px 2px 2px;'>FEC. ANALISIS</td>
@@ -686,10 +716,77 @@ class recepcionDeArticuloController extends Controller
 				$fecha_ven = explode('|',$dat['arreglo'])[1];
 			}
 			
-			switch($dat['undPrincipal']){
+			$cant_aprobada = explode('|',$dat['arreglo'])[2];
+			if($cant_aprobada!=0){
+				/*$arreglo_2 = str_replace(',', '.', $cant_aprobada);
+				$cant_aprobada = floatval($arreglo_2);*/
+				
+				switch($dat['undPrincipal']){
+					case 'NIU':
+						//$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
+						//$cant_aprobada = explode('|',$dat['arreglo'])[2];
+						//break;
+						switch($dat['abbreviation']){
+							case 'GR':
+							case 'UND':
+								//$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
+								$cant_aprobada = str_replace(",","",explode('|',$dat['arreglo'])[2]);
+								break;
+							default:
+								$cant_aprobada = explode('|',$dat['arreglo'])[2];
+								break;
+						}
+						break;
+					case 'KGM':
+						if($dat['TranID']=='823'){
+							$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
+						}else{
+							$cant_aprobada = explode('|',$dat['arreglo'])[2];
+						}
+						break;
+					case 'MLL':
+					case 'MIL':
+					case 'GRM':
+						$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
+						break;
+					case 'GLL':
+						$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]/3.8);
+						break;
+					case 'LTR':
+						$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]);
+						break;	
+				}
+				
+				
+			}else{
+				$cant_aprobada = floatval($dat['quantity']);
+			}
+			/*$cant_rechazada = explode('|',$dat['arreglo'])[3];
+			if($cant_rechazada==0){
+				//$arreglo_2 = str_replace(',', '.', explode('|',$dat['arreglo'])[2]);
+				$cant_aprobada = floatval($arreglo_2*1000);
+				//$cant_aprobada = floatval($dat['quantity']);
+			}else{
+				//$cant_aprobada = floatval($dat['quantity']) - ($cant_rechazada*1000);
+				$cant_aprobada = floatval($dat['quantity']);
+			}*/
+
+
+			/*switch($dat['undPrincipal']){
 				case 'NIU':
 					//$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
-					$cant_aprobada = explode('|',$dat['arreglo'])[2];
+					//$cant_aprobada = explode('|',$dat['arreglo'])[2];
+					//break;
+					switch($dat['abbreviation']){
+						case 'GR':
+						case 'UND':
+							//$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
+							$cant_aprobada = explode('|',$dat['arreglo'])[2];
+							break;
+						default:
+							$cant_aprobada = explode('|',$dat['arreglo'])[2];
+							break;
+					}
 					break;
 				case 'KGM':
 					if($dat['TranID']=='823'){
@@ -709,9 +806,10 @@ class recepcionDeArticuloController extends Controller
 				case 'LTR':
 					$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]);
 					break;	
-			}
+			}*/
 			
-			$cant_aprobada = str_replace(",","",$cant_aprobada);
+			//$cant_aprobada = str_replace(",","",$cant_aprobada);
+			//$cant_aprobada = str_replace(",","",$dat['quantity']);
 			
 			$mpdf->SetDefaultFont("Arial");
 			
@@ -767,7 +865,7 @@ class recepcionDeArticuloController extends Controller
 					<tr>
 						<td style='width:29%;font-size: 11px;font-weight:bold;padding:2px 2px 2px 2px;'>FEC. ANALISIS</td>
 						<td style='width:1%;font-size: 11px;font-weight:bold;padding:2px 2px 2px 2px;'>:</td>
-						<td style='width:28%;font-size: 11px;padding:2px 2px 2px 2px;'>".$fecha_ven."</td>
+						<td style='width:28%;font-size: 11px;padding:2px 2px 2px 2px;'>".$dat['fecha_analisis']."</td>
 						<td style='width:21%;font-size: 11px;font-weight:bold;padding:2px 2px 2px 2px;'>VERSION</td>
 						<td style='width:1%;font-size: 11px;font-weight:bold;padding:2px 2px 2px 2px;'>:</td>
 						<td style='width:22%;font-size: 11px;padding:2px 2px 2px 2px;'>".$version."</td>
@@ -876,19 +974,29 @@ class recepcionDeArticuloController extends Controller
 			
 			switch($dat['undPrincipal']){
 				case 'NIU':
+					switch($dat['abbreviation']){
+						case 'GR':
+						case 'UND':
+							$cant_rechazada = floatval(explode('|',$dat['arreglo'])[3]*1000);
+							break;
+						default:
+							$cant_rechazada = explode('|',$dat['arreglo'])[3];
+							break;
+					}
+					break;
 				case 'KGM':
 					$cant_rechazada = explode('|',$dat['arreglo'])[3];
 					break;
 				case 'MLL':
 				case 'MIL':
 				case 'GRM':
-					$cant_rechazada = floatval(explode('|',$dat['arreglo'])[3]*1000);
+					$cant_rechazada = floatval(explode('|',$dat['arreglo'])[3]);
 					break;
 				case 'GLL':
 					$cant_rechazada = floatval(explode('|',$dat['arreglo'])[3]/3.8);
 					break;
 				case 'LTR':
-					$cant_rechazada = floatval(explode('|',$dat['arreglo'])[2]);
+					$cant_rechazada = floatval(explode('|',$dat['arreglo'])[3]);
 					break;
 			}
 			
@@ -1048,7 +1156,7 @@ class recepcionDeArticuloController extends Controller
 					break;
 			}*/			
 			
-			if(explode('|',$dat['arreglo'])[1]==null || explode('|',$dat['arreglo'])[1]=="" || explode('|',$dat['arreglo'])[1]=="01/01/1970"){
+			if(explode('|',$dat['arreglo'])[1]==null or explode('|',$dat['arreglo'])[1]=="" or explode('|',$dat['arreglo'])[1]=="01/01/1970"){
 				$fecha_ven = "";
 			}else{
 				$fecha_ven = explode('|',$dat['arreglo'])[1];
@@ -1056,6 +1164,17 @@ class recepcionDeArticuloController extends Controller
 			
 			switch($dat['undPrincipal']){
 				case 'NIU':
+					switch($dat['abbreviation']){
+						case 'GR':
+						case 'UND':
+							//$cant_aprobada = floatval(explode('|',$dat['arreglo'])[2]*1000);
+							$cant_aprobada = explode('|',$dat['arreglo'])[2];
+							break;
+						default:
+							$cant_aprobada = explode('|',$dat['arreglo'])[2];
+							break;
+					}
+					break;
 				case 'KGM':
 					$cant_aprobada = explode('|',$dat['arreglo'])[2];
 					break;

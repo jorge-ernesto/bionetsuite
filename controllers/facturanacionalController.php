@@ -62,7 +62,7 @@ class facturanacionalController extends Controller
 				</tr>
 				<tr>
 					<td style='width:16%;text-align:left;font-size:10px;'><b>Nombre/Razón Social:</b></td>
-					<td style='width:47%;text-align:left;font-size:10px;'>".$cabecera_FN[0]['nomCliente']."</td>
+					<td style='width:44%;text-align:left;font-size:10px;'>".$cabecera_FN[0]['nomCliente']."</td>
 					<td style='width:15%;text-align:left;font-size:10px;'><b>Fecha Vencimiento:</b></td>
 					<td style='width:23%;text-align:left;font-size:10px;'>".date('d/m/Y',strtotime($cabecera_FN[0]['fecVencimiento']))."</td>
 				</tr>
@@ -107,7 +107,7 @@ class facturanacionalController extends Controller
 			
 			$numFactura = explode("-",str_replace("FA ","",trim($cabecera_FN[0]['numFactura'])));
 			
-			$contenido = "20100278708|01|".$numFactura[0]."|".$numFactura[1]."|0.00|".number_format($cabecera_FN[0]['importeTotal'],2,'.','')."|".date("Y-m-d",strtotime($cabecera_FE[0]['fecEmision']))."|0|".$cabecera_FE[0]['docCliente']."|".$hash."|";
+			$contenido = "20100278708|01|".$numFactura[0]."|".$numFactura[1]."|0.00|".number_format($cabecera_FN[0]['importeTotal'],2,'.','')."|".explode("/", $cabecera_FN[0]['fecEmision'])[2]."-".explode("/", $cabecera_FN[0]['fecEmision'])[1]."-".explode("/", $cabecera_FN[0]['fecEmision'])[0]."|0|".$cabecera_FN[0]['docCliente']."|".$hash."|";
 			
 			QRcode::png($contenido,$filename,$level,$tamano,$framSize);
 		}else{
