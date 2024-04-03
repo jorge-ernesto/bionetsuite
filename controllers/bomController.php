@@ -179,7 +179,7 @@ class bomController extends Controller
 				<tr class='fila1'>
 					<td class='celda1' style='width:15%;font-size:10px;".$principio_activo."'>".$art1['codigo']."</td>
 					<td class='celda1' style='width:45%;font-size:10px;".$principio_activo."'>".preg_replace('/[^%()\/&°.\\s\p{L}\p{N}]/u', '-',$art1['articulo'])."</td>
-					<td class='celda1' style='width:15%;font-size:10px;text-align:center;".$principio_activo."'>".number_format($art1['cantidad_mysql'], $decimales, '.', ',')."</td>
+					<td class='celda1' style='width:15%;font-size:10px;text-align:center;".$principio_activo."'>".number_format($art1['cantidad_lista_materiales'], $decimales, '.', ',')."</td>
 					<td class='celda1' style='width:15%;font-size:10px;text-align:center;".$principio_activo."'>".number_format($art1['cantidad'], $decimales, '.', ',')."</td>
 					<td class='celda1' style='width:10%;font-size:10px;text-align:center;".$principio_activo."'>".$art1['und']."</td>
 				</tr>

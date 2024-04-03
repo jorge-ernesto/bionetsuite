@@ -90,6 +90,11 @@ class bomModel extends Model
 			WHEN PT.abbreviation = 'UND' THEN round(TL.quantity*-1,0)
 			ELSE (TL.quantity*-1) 
 			END) as cantidad,
+			(CASE 
+			WHEN PT.abbreviation = 'GR' THEN (TL.bomquantity*1000) 
+			WHEN PT.abbreviation = 'UND' THEN round(TL.bomquantity,0)
+			ELSE (TL.bomquantity) 
+			END) as cantidad_lista_materiales,
 			PT.abbreviation,
 			(CASE WHEN PT.custrecord184 = 'T' THEN 'T' ELSE 'F' END) as principActivo,
 			TL.linesequencenumber as secuencia 
@@ -113,13 +118,14 @@ class bomModel extends Model
 		if (intval($contador) > 0) {
 			while (!$rs->EOF) {
 				$datos[] = [
-					"ID"			=> $rs->fields[0],
-					"codigo"		=> $rs->fields[1],
-					"articulo"		=> utf8_encode($rs->fields[2]),
-					"cantidad"		=> $rs->fields[3],
-					"und"			=> $rs->fields[4],
-					"principActivo"	=> $rs->fields[5],
-					"secuencia" 	=> $rs->fields[6],
+					"ID"			            => $rs->fields[0],
+					"codigo"		            => $rs->fields[1],
+					"articulo"		            => utf8_encode($rs->fields[2]),
+					"cantidad"		            => $rs->fields[3],
+					"cantidad_lista_materiales"	=> $rs->fields[4],
+					"und"			            => $rs->fields[5],
+					"principActivo"	            => $rs->fields[6],
+					"secuencia" 	            => $rs->fields[7],
 				];
 				$rs->MoveNext();
 			}
