@@ -109,7 +109,7 @@ class facturaexportacionController extends Controller
 			
 			$numFactura = explode("-",str_replace("FA ","",trim($cabecera_FE[0]['numFactura'])));
 			
-			$contenido = "20100278708|01|".$numFactura[0]."|".$numFactura[1]."|0.00|".number_format($cabecera_FE[0]['importeTotal'],2,'.','')."|".date("Y-m-d",strtotime($cabecera_FE[0]['fecEmision']))."|0|".$cabecera_FE[0]['docCliente']."|".$hash."|";
+			$contenido = "20100278708|01|".$numFactura[0]."|".$numFactura[1]."|0.00|".number_format($cabecera_FE[0]['importeTotal'],2,'.','')."|".explode("/", $cabecera_FE[0]['fecEmision'])[2]."-".explode("/", $cabecera_FE[0]['fecEmision'])[1]."-".explode("/", $cabecera_FE[0]['fecEmision'])[0]."|0|".$cabecera_FE[0]['docCliente']."|".$hash."|";
 			
 			QRcode::png($contenido,$filename,$level,$tamano,$framSize);
 		}else{
@@ -292,7 +292,7 @@ class facturaexportacionController extends Controller
 					<td align='center' style='width:6%;font-size:12px;border:1px solid black;padding:3px;'>".$art['unidad']."</td>
 					<td align='center' style='width:8%;font-size:12px;border:1px solid black;padding:3px;'>".$lote."</td>
 					<td align='right' style='width:6%;font-size:12px;border:1px solid black;padding:3px;'>".$art['quantity']."</td>
-					<td align='center' style='width:10%;font-size:12px;border:1px solid black;padding:3px;'>".$art['fechafabricacion']."</td>
+					<td align='center' style='width:10%;font-size:12px;border:1px solid black;padding:3px;'>".str_replace("#","",$art['fechafabricacion'])."</td>
 					<td align='center' style='width:10%;font-size:12px;border:1px solid black;padding:3px;'>".$art['fechacaducidad']."</td>
 					<td align='right' style='width:8%;font-size:12px;border:1px solid black;padding:3px;'>".number_format($art['precioUnitario'],2,'.',',')."</td>
 					<td align='right' style='width:10%;font-size:12px;border:1px solid black;padding:3px;'>".number_format($art['valorVenta'],2,'.',',')."</td>

@@ -17,7 +17,7 @@ class rotuloProductoTerminadoController extends Controller
 		]);
 	}
 	
-	public function imprimirRotulo()
+	/*public function imprimirRotulo()
 	{
 		header('Access-Control-Allow-Origin: *');
 		
@@ -59,9 +59,9 @@ class rotuloProductoTerminadoController extends Controller
 			"file"=>$file,
 		]);
 		
-	}
+	}*/
 	
-	public function crear_etiqueta($objPDF, $objInput){
+	/*public function crear_etiqueta($objPDF, $objInput){
 
 		if(!$objInput['dato']['muestra'] and !$objInput['dato']['saldo'])
 		{
@@ -307,6 +307,6 @@ class rotuloProductoTerminadoController extends Controller
 			
 		}
 		
-	}
+	}*/
 
 }

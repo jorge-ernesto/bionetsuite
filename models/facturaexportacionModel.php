@@ -92,7 +92,7 @@ class facturaexportacionModel extends Model
 	*/
 	public function getDetalleFacturaExportacion($id)
 	{
-		$sql="select  
+		/*$sql="select  
 		TL.transaction as idtransaccion,
 		TL.item as iditem,
 		I.itemid as codigo,
@@ -127,7 +127,44 @@ class facturaexportacionModel extends Model
 			SELECT pricelevel,item,saleunit,unitprice 
 			FROM pricing where currency='2'
 			) PRI on (PRI.pricelevel=TL.price and PRI.item=TL.item and PRI.saleunit=I.saleunit)
-		order by TL.linesequencenumber asc;";
+		order by TL.linesequencenumber asc;";*/
+		
+		$sql = "select  
+			TL.transaction as idtransaccion,
+			TL.item as iditem,
+			I.itemid as codigo,
+			trim(I.description) as description,
+			I.custitem_ns_pe_cod_unit_med as unidad,
+			TL.custcol_bio_item_reg as reg,
+			(IA.quantity * -1 ) as quantity,
+			TRIM(INU.inventorynumber) as Lote,
+			SUBSTR(INU.inventorynumber,INSTR(INU.inventorynumber, '#')+1, LENGTH(INU.inventorynumber) - INSTR(INU.inventorynumber, '#'))  as fechafabricacion,
+			TO_CHAR(INU.expirationdate,'MM-YYYY') as fechacaducidad,
+			ROUND(TL.rate/TL.exchangerate,2)  as precioUnitario,
+			ROUND((IA.quantity * -1) *  ROUND(TL.rate/TL.exchangerate,2),2) as valorVenta,
+			TRIM(PRI.pricelevel) as nivel
+			FROM (
+				SELECT XL.id,XL.Item,XL.custcol_bio_item_reg,XL.price,XL.transaction,XL.linesequencenumber,XL.creditforeignamount,XL.rate,X.exchangerate
+				FROM TransactionLine XL INNER join transaction X on (X.id=XL.transaction)
+				WHERE XL.transaction='$id' and XL.costestimatetype='AVGCOST' 
+				) TL 
+			INNER JOIN (
+				SELECT id,saleunit,itemid,description,lastpurchaseprice,custitem_ns_pe_cod_unit_med
+				FROM Item
+				) I ON ( I.id = TL.Item )
+			INNER JOIN (
+				SELECT transaction,transactionline,inventorynumber,quantity 
+				FROM inventoryAssignment
+				) IA on (IA.transaction=TL.transaction and IA.transactionline=TL.id)
+			INNER JOIN (
+				SELECT id,expirationdate,inventorynumber 
+				FROM inventoryNumber
+				) INU ON (INU.id=IA.inventorynumber)
+			LEFT JOIN (
+				SELECT pricelevel,item,saleunit,unitprice 
+				FROM pricing where currency='2'
+				) PRI on (PRI.pricelevel=TL.price and PRI.item=TL.item and PRI.saleunit=I.saleunit)
+			order by TL.linesequencenumber asc;";
 		$rs  = $this->_db->get_Connection()->Execute($sql);
 		$contador = $rs->RecordCount();
 		if (intval($contador) > 0) {

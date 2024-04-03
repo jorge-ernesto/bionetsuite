@@ -106,6 +106,8 @@ class bomModel extends Model
 				) PT on PT.itemid=I.itemid  
 			where TL.transaction='$idtransaccion' $where2 
 			order by TL.linesequencenumber asc;";
+		error_log("getDetalleOrdenTrabajo");
+		error_log($sql);
 		$rs  = $this->_db->get_Connection()->Execute($sql);
 		$contador = $rs->RecordCount();
 		if (intval($contador) > 0) {
@@ -118,6 +120,23 @@ class bomModel extends Model
 					"und"			=> $rs->fields[4],
 					"principActivo"	=> $rs->fields[5],
 					"secuencia" 	=> $rs->fields[6],
+				];
+				$rs->MoveNext();
+			}
+		}
+		return $datos;
+	}
+	
+	public function queryMysql($id_ot)
+	{
+		$sql = "SELECT componente,cantidad FROM tb_registro_cantidad where id_ot='$id_ot'";
+		$rs  = $this->_db->get_Connection1()->Execute($sql);
+		$contador = $rs->RecordCount();
+		if (intval($contador) > 0) {
+			while (!$rs->EOF) {
+				$datos[] = [
+					"componente_mysql"	=> $rs->fields[0],
+					"cantidad_mysql"	=> $rs->fields[1],
 				];
 				$rs->MoveNext();
 			}

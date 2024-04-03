@@ -189,7 +189,9 @@ class revisionLMController extends Controller
 		if($input["dato"]['email']=='ide'){ //emision
 			$emails = [
 				"jpena@biomont.com.pe",
-				"avilchez@biomont.com.pe",
+				"mmancilla@biomont.com.pe",
+				"jpalian@biomont.com.pe",
+				"lbasualdo@biomont.com.pe",
 				"kcelestino@biomont.com.pe",
 				"etacunan@biomont.com.pe",
 				"acampos@biomont.com.pe",
@@ -199,7 +201,9 @@ class revisionLMController extends Controller
 			$emails = [
 				"jpena@biomont.com.pe",
 				"wpena@biomont.com.pe",
-				"avilchez@biomont.com.pe",
+				"mmancilla@biomont.com.pe",
+				"jpalian@biomont.com.pe",
+				"lbasualdo@biomont.com.pe",
 				"kcelestino@biomont.com.pe",
 				"etacunan@biomont.com.pe",
 				"acampos@biomont.com.pe",
@@ -208,7 +212,9 @@ class revisionLMController extends Controller
 		}else if($input["dato"]['email']=='planta_rechazado'){ //revision rechazo
 			$emails = [
 				"jpena@biomont.com.pe",
-				"avilchez@biomont.com.pe",
+				"mmancilla@biomont.com.pe",
+				"jpalian@biomont.com.pe",
+				"lbasualdo@biomont.com.pe",
 				"kcelestino@biomont.com.pe",
 				"etacunan@biomont.com.pe",
 				"acampos@biomont.com.pe",
@@ -218,17 +224,16 @@ class revisionLMController extends Controller
 			$emails = [
 				"jpena@biomont.com.pe",
 				"wpena@biomont.com.pe",
-				"avilchez@biomont.com.pe",
+				"mmancilla@biomont.com.pe",
+				"jpalian@biomont.com.pe",
+				"lbasualdo@biomont.com.pe",
 				"kcelestino@biomont.com.pe",
 				"etacunan@biomont.com.pe",
 				"acampos@biomont.com.pe",
 				"kfranco@biomont.com.pe",
 				"evera@biomont.com.pe",
-				"crujel@biomont.com.pe",
-				"kcastillo@biomont.com.pe",
 				"id@biomont.com.pe",
-				"dguzman@biomont.com.pe",
-				"cbonilla@biomont.com.pe"
+				"dguzman@biomont.com.pe"
 			];
 		}
 		
@@ -317,6 +322,7 @@ class revisionLMController extends Controller
 	public function imprimirPDF()
 	{
 		header('Access-Control-Allow-Origin: *');
+		header('Content-Type: text/html; charset=utf-8');
 		
 		$input = json_decode(file_get_contents("php://input"), true);
 		
@@ -327,7 +333,7 @@ class revisionLMController extends Controller
 
 		$mpdf = new mPDF();
 		
-		$mpdf -> SetTitle('REVISION DE LISTA DE MATERIALES');
+		$mpdf->SetTitle('REVISION DE LISTA DE MATERIALES');
 		
 		$mpdf->SetDefaultFont("Arial");
 		
@@ -342,7 +348,9 @@ class revisionLMController extends Controller
 		
 		$codigo = substr($dato_cabecera_RLM[0]['productoBulkLinea'],0,strpos($dato_cabecera_RLM[0]['productoBulkLinea'],'0'));
 		switch($codigo){
-			case 'BK';
+			case 'BK':
+			case 'PIP':
+			case 'MIP':
 				$titulo = "REVISIÓN DE LISTA DE MATERIALES FABRICACION";
 				break;
 			case 'INY':
@@ -395,38 +403,38 @@ class revisionLMController extends Controller
 				<tr>
 					<td style='padding:2.5px;width:16%;text-align:left;font-size:10px;'><b>Revisión/Producto</b></td>
 					<td style='padding:2.5px;width:1%;text-align:left;font-size:10px;'>:</td>
-					<td style='padding:2.5px;width:35%;text-align:left;font-size:10px;'>".$dato_cabecera_RLM[0]['nombreRevision']."</td>
-					<td style='padding:2.5px;width:26%;text-align:left;font-size:10px;'><b>Fecha creación:</b></td>
+					<td style='padding:2.5px;width:40%;text-align:left;font-size:10px;'>".preg_replace('/[^,%*()\/&°.\\s\p{L}\p{N}]/u', '-', $dato_cabecera_RLM[0]['nombreRevision'])."</td>
+					<td style='padding:2.5px;width:15%;text-align:left;font-size:10px;'><b>Fecha creación</b></td>
 					<td style='padding:2.5px;width:1%;text-align:left;font-size:10px;'>:</td>
-					<td style='padding:2.5px;width:21%;text-align:left;font-size:10px;'>".$dato_cabecera_RLM[0]['fechaCreado']."</td>
+					<td style='padding:2.5px;width:27%;text-align:left;font-size:10px;'>".$dato_cabecera_RLM[0]['fechaCreado']."</td>
 				</tr>
 				<tr>
 					<td style='padding:2.5px;width:16%;text-align:left;font-size:10px;'><b>Producto Bulk/Linea</b></td>
 					<td style='padding:2.5px;width:1%;text-align:left;font-size:10px;'>:</td>
-					<td style='padding:2.5px;width:35%;text-align:left;font-size:10px;'>".$dato_cabecera_RLM[0]['productoBulkLinea']."</td>
-					<td style='padding:2.5px;width:26%;text-align:left;font-size:10px;'></td>
+					<td style='padding:2.5px;width:40%;text-align:left;font-size:10px;'>".$dato_cabecera_RLM[0]['productoBulkLinea']."</td>
+					<td style='padding:2.5px;width:15%;text-align:left;font-size:10px;'></td>
 					<td style='padding:2.5px;width:1%;text-align:left;font-size:10px;'></td>
-					<td style='padding:2.5px;width:21%;text-align:left;font-size:10px;'>&nbsp;</td>
+					<td style='padding:2.5px;width:27%;text-align:left;font-size:10px;'>&nbsp;</td>
 				</tr>
 				<tr>
 					<td style='padding:2.5px;width:16%;text-align:left;font-size:10px;'><b>Fórmula</b></td>
 					<td style='padding:2.5px;width:1%;text-align:left;font-size:10px;'>:</td>
-					<td style='padding:2.5px;width:35%;text-align:left;font-size:10px;'>".$dato_cabecera_RLM[0]['nombreListaMateriales']."</td>
-					<td style='padding:2.5px;width:26%;text-align:left;font-size:10px;'></td>
+					<td style='padding:2.5px;width:40%;text-align:left;font-size:10px;'>".preg_replace('/[^,%*()\/&°.\\s\p{L}\p{N}]/u', '-', $dato_cabecera_RLM[0]['nombreListaMateriales'])."</td>
+					<td style='padding:2.5px;width:15%;text-align:left;font-size:10px;'></td>
 					<td style='padding:2.5px;width:1%;text-align:left;font-size:10px;'></td>
-					<td style='padding:2.5px;width:21%;text-align:left;font-size:10px;'>&nbsp;</td>
+					<td style='padding:2.5px;width:27%;text-align:left;font-size:10px;'>&nbsp;</td>
 				</tr>
 				<tr>
 					<td style='padding:2.5px;width:16%;text-align:left;font-size:10px;'><b>Principio Activo</b></td>
 					<td style='padding:2.5px;width:1%;text-align:left;font-size:10px;'>:</td>
-					<td style='padding:2.5px;width:35%;text-align:left;font-size:10px;'><p style='background-color:#D6DBDF;color:#D6DBDF;'>Hola</p></td>
-					<td style='padding:2.5px;width:26%;text-align:left;font-size:10px;'>&nbsp;</td>
+					<td style='padding:2.5px;width:40%;text-align:left;font-size:10px;'><p style='background-color:#D6DBDF;color:#D6DBDF;'>Hola</p></td>
+					<td style='padding:2.5px;width:15%;text-align:left;font-size:10px;'>&nbsp;</td>
 					<td style='padding:2.5px;width:1%;text-align:left;font-size:10px;'>&nbsp;</td>
-					<td style='padding:2.5px;width:21%;text-align:left;font-size:10px;'>&nbsp;</td>
+					<td style='padding:2.5px;width:27%;text-align:left;font-size:10px;'>&nbsp;</td>
 				</tr>
 			</table>
 		");
-		
+		//preg_replace('/[^\p{L}\p{N}\s]/u', '-', $dato_cabecera_RLM[0]['nombreListaMateriales'])
 		$mpdf->Ln(5);
 		
 		$mpdf->WriteHTML("
@@ -452,16 +460,20 @@ class revisionLMController extends Controller
 			}else{
 				$principio_activo="";
 			}
-			
+			///[^\p{L}\p{N}\s]/u
+
+			//preg_replace('/[^%()\/&°.\\s\p{L}\p{N}]/u', '-',$art['descripcion'])
 			$mpdf->WriteHTML("
 				<tr>
 					<td align='center' style='width:12%;font-size:10px;border:1px solid black;padding:3px;".$principio_activo."'>".$art['codigo']."</td>
-					<td align='left' style='width:48%;font-size:10px;border:1px solid black;padding:3px;".$principio_activo."'>".$art['descripcion']."</td>
+					<td align='left' style='width:48%;font-size:10px;border:1px solid black;padding:3px;".$principio_activo."'>".preg_replace('/[^,%()\/&°.\\s\p{L}\p{N}]/u', '-',$art['descripcion'])."</td>
 					<td align='center' style='width:14%;font-size:10px;border:1px solid black;padding:3px;".$principio_activo."'>".number_format($art['rendimiento']*100, 2)." %</td>
 					<td align='center' style='width:13%;font-size:10px;border:1px solid black;padding:3px;".$principio_activo."'>".number_format($art['cantidad'], 5)."</td>
 					<td align='center' style='width:13%;font-size:10px;border:1px solid black;padding:3px;".$principio_activo."'>".$art['unidad']."</td>
 				</tr>
 			");
+			
+			
 		}
 		
 		$mpdf->WriteHTML("
@@ -470,12 +482,23 @@ class revisionLMController extends Controller
 		
 		$mpdf->Ln(5);
 		
-		date_default_timezone_set('America/Lima');
-
+		//date_default_timezone_set('America/Lima');
+		
+		if($dato_cabecera_RLM[0]['firmanteAprobado']=="WILL"){
+			$firmanteAprobado = "WILLIAM FREDDY PEÑA JARA";
+		}else{
+			$firmanteAprobado = "";
+		}
+		
+		/*
+		".$dato_cabecera_RLM[0]['firmanteEmitido']."".$dato_cabecera_RLM[0]['fechaFirmaEmitido']  ."
+		".$dato_cabecera_RLM[0]['firmanteRevisado']."".$dato_cabecera_RLM[0]['fechaFirmaRevisado']."
+		".$dato_cabecera_RLM[0]['firmanteAprobado']."".$dato_cabecera_RLM[0]['fechaFirmaAprobado']."*/
+		
 		$mpdf->WriteHTML("
 			<table class='tabla2' width='90%'>
 				<tr>
-					<td colspan=2 style='font-size:11px;'><strong>Emisión, Revisión y Aprobación</strong></td>
+					<td colspan=2 style='font-size:11px;'><b>Emisión, Revisión y Aprobación</b></td>
 				</tr>
 				<tr>
 					<td class='celda1' style='font-size:9px;text-align:center;'>Emitido por</td>
@@ -483,9 +506,9 @@ class revisionLMController extends Controller
 					<td class='celda1' style='font-size:9px;text-align:center;'>Aprobado por</td>
 				</tr>
 				<tr>
-					<td class='celda1' style='font-size:9px;text-align:center;height:60px;border-bottom:0px solid white;'>".$dato_cabecera_RLM[0]['firmanteEmitido']."<br>".$dato_cabecera_RLM[0]['fechaFirmaEmitido']."</td>
-					<td class='celda1' style='font-size:9px;text-align:center;height:60px;border-bottom:0px solid white;'>".$dato_cabecera_RLM[0]['firmanteRevisado']."<br>".$dato_cabecera_RLM[0]['fechaFirmaRevisado']."</td>
-					<td class='celda1' style='font-size:9px;text-align:center;height:60px;border-bottom:0px solid white;'>".$dato_cabecera_RLM[0]['firmanteAprobado']."<br>".$dato_cabecera_RLM[0]['fechaFirmaAprobado']."</td>
+					<td class='celda1' style='width:33.3%;font-size:9px;text-align:center;height:60px;border-bottom:0px solid white;'>".$dato_cabecera_RLM[0]['firmanteEmitido']."<br/>".$dato_cabecera_RLM[0]['fechaFirmaEmitido']."</td>
+					<td class='celda1' style='width:33.3%;font-size:9px;text-align:center;height:60px;border-bottom:0px solid white;'>".$dato_cabecera_RLM[0]['firmanteRevisado']."<br/>".$dato_cabecera_RLM[0]['fechaFirmaRevisado']."</td>
+					<td class='celda1' style='width:33.3%;font-size:9px;text-align:center;height:60px;border-bottom:0px solid white;'>".$dato_cabecera_RLM[0]['firmanteAprobado']."<br/>".$dato_cabecera_RLM[0]['fechaFirmaAprobado']."</td>
 				</tr>
 				<tr>
 					<td style='font-size:7px;text-align:center;border-left:1px solid black;border-right:1px solid black;border-top:0px solid white;'>Firma digital desde NETSUITE</td>
@@ -502,8 +525,8 @@ class revisionLMController extends Controller
 		
 		$fecha = date("YmdHis",time());
 		
-		$archivo= "downloads/RLM_".$dato_cabecera_RLM[0]['idListaMateriales']."_".$dato_cabecera_RLM[0]['idRevision']."_".$fecha.".pdf";
-
+		//$archivo= "downloads/RLM_".$dato_cabecera_RLM[0]['idListaMateriales']."_".$dato_cabecera_RLM[0]['idRevision']."_".$fecha.".pdf";
+		$archivo="descarga.pdf";
 		$mpdf->Output($archivo, 'F');  //D: descarga directa, I: visualizacion, F: descarga en ruta especifica
 		
 		if (file_exists($archivo)) {
@@ -661,7 +684,7 @@ class revisionLMController extends Controller
 		
 		$objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1','REPORTE ESTADO DE LISTA DE MATERIALES')
-                    ->mergeCells('A1:E1');
+                    ->mergeCells('A1:F1');
 					
 		$objPHPExcel->getActiveSheet()->setShowGridlines(false);
 		
@@ -721,6 +744,7 @@ class revisionLMController extends Controller
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C3',  "PRODUCTO BULK/LINEA");
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D3',  "FECHA CREACION");
         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('E3',  "ESTADO");
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F3',  "INACTIVO");
 		
 		$i=4;
 		foreach($resultado as $dato){		
@@ -730,16 +754,17 @@ class revisionLMController extends Controller
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('C'.($i), $dato['productoBulkLinea']);
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('D'.($i), $dato['fechaCreado']);
 			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('E'.($i), $dato['estado']);
+			$objPHPExcel->setActiveSheetIndex(0)->setCellValue('F'.($i), $dato['inactivo']);
 			
-			$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':E'.$i)->applyFromArray($estilos_celdas);
-			$objPHPExcel->getDefaultStyle()->getAlignment('A'.$i.':E'.$i)->setWrapText(true);
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':F'.$i)->applyFromArray($estilos_celdas);
+			$objPHPExcel->getDefaultStyle()->getAlignment('A'.$i.':F'.$i)->setWrapText(true);
 
 			$i++;
 		}
 		
-		$objPHPExcel->getActiveSheet()->getStyle('A1:E1')->applyFromArray($estilos_cabeceras);
-		$objPHPExcel->getActiveSheet()->getStyle('A3:E3')->getFont()->setBold(true);
-		$objPHPExcel->getActiveSheet()->getStyle('A3:E3')->applyFromArray($estilos_titulo);
+		$objPHPExcel->getActiveSheet()->getStyle('A1:F1')->applyFromArray($estilos_cabeceras);
+		$objPHPExcel->getActiveSheet()->getStyle('A3:F3')->getFont()->setBold(true);
+		$objPHPExcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($estilos_titulo);
 
 		$sheet = $objPHPExcel->getActiveSheet();
 		foreach($sheet->getColumnIterator() as $column){

@@ -468,7 +468,7 @@ class reportesVentasModel extends Model
 					TRANSACTION T
 					INNER JOIN TRANSACTIONLINE TL                                       ON ( T.ID = TL.TRANSACTION )
 					INNER JOIN ITEM I                                                   ON ( TL.ITEM = I.ID )
-					LEFT JOIN CUSTOMLIST1334 L                                          ON ( I.CUSTITEM3 = L.ID )
+					LEFT JOIN CUSTOMRECORD1334 L                                        ON ( I.CUSTITEM3 = L.ID )
 					LEFT JOIN CUSTOMRECORD_NS_PE_OPERATION_TYPE OPERTYPE                ON ( T.custbody_ns_pe_oper_type = OPERTYPE.ID )
 					LEFT JOIN ( SELECT ID, TRANID, ENTITY FROM TRANSACTION ) AS TCAB_OC ON ( TL.createdfrom = TCAB_OC.ID )    
 					LEFT JOIN unitsTypeUom UTO                                          ON ( TL.units = UTO.internalid )
@@ -570,6 +570,7 @@ class reportesVentasModel extends Model
 					$where_linea_articulo
 				ORDER BY
 					T.ID DESC;";
+		error_log($sql);
 
 		$rs = $this->_db->get_Connection()->Execute($sql);
 		$contador = $rs->RecordCount();

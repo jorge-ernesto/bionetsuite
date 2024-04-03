@@ -20,16 +20,15 @@ class sqlserverModel extends Model
 			TRIM(W.fullname) DESC_ALMACEN, 
 			X.transaction ID_TRANSACCION, 
 			TRIM(Y.tranid) NRO_DOCUMENTO, 
-			TO_CHAR(Y.trandate, 'dd/MM/yyyy') FECHA_DOCUMENTO, 
-			TO_CHAR(Y.trandate,'MONTH') MES, 
+			TO_CHAR(Y.trandate, 'dd/MM/yyyy') FECHA_DOCUMENTO,
 			Z.standardcost COSTO_ESTANDAR 
-			from transactionline X 
+			from (select * from transactionline where accountinglinetype='ASSET') X 
 			inner join transaction Y on (X.transaction=Y.id) 
 			inner join TransactionAccountingLineCostComponent Z on (Z.transaction=X.transaction and Z.transactionline=X.id)
 			inner join location W on (W.id=X.location)
-			inner join (select * from item where costingmethod='STANDARD' and isinactive<>'T') V on (V.id=X.item)
-			where Y.abbrevtype='INVREVAL' and X.id>1 and TO_NUMBER(TO_CHAR(Y.trandate,'yyyy')) = 2023
-			order by Y.trandate,X.item, X.location;";
+			inner join (select * from item where costingmethod='STANDARD') V on (V.id=X.item)
+			where Y.abbrevtype='INVREVAL' and X.id>1 and  TO_NUMBER(TO_CHAR(Y.trandate,'yyyy')) in (2023) and TO_NUMBER(TO_CHAR(Y.trandate,'MM'))=9
+			order by Y.trandate,X.item, X.location;"; 
 		$rs = $this->_db->get_Connection()->Execute($sql);
 		$contador = $rs->RecordCount();
 		if (intval($contador) > 0) {
@@ -45,46 +44,21 @@ class sqlserverModel extends Model
 					"ID_TRANSACCION" 	=> $rs->fields[7],
 					"NRO_DOCUMENTO" 	=> $rs->fields[8],
 					"FECHA_DOCUMENTO" 	=> $rs->fields[9],
-					"MES" 				=> $rs->fields[10],
-					"COSTO_ESTANDAR" 	=> $rs->fields[11],
+					"COSTO_ESTANDAR" 	=> $rs->fields[10],
 				];
 				$rs->MoveNext();
 			}
 		}
+
 		return $datos;
 		
 	}
-	
-	/*public function insertSQLSERVER($datos)
-	{		
-		$sql='';
-		foreach($datos as $data){
-			$sql .="INSERT INTO dbo.NS_CN001_REPORTE_VENTA_COSTO_T_REVALUACIONES VALUES
-						   (".$data['ID_ARTICULO']."
-						   ,".$data['ID_ALMACEN']."
-						   ,".$data['NRO_MES']."
-						   ,".$data['NRO_ANIO']."
-						   ,'".trim($data['CODIGO_ARTICULO'])."'
-						   ,'".utf8_encode(trim($data['DESC_ARTICULO']))."'
-						   ,'".utf8_encode(trim($data['DESC_ALMACEN']))."'
-						   ,".$data['ID_TRANSACCION']."
-						   ,".$data['NRO_DOCUMENTO']."
-						   ,'".explode("/",$data['FECHA_DOCUMENTO'])[2]."-".explode("/",$data['FECHA_DOCUMENTO'])[1]."-".explode("/",$data['FECHA_DOCUMENTO'])[0]."'
-						   ,'".trim($data['MES'])."'
-						   ,".$data['COSTO_ESTANDAR']."
-						   ,GETDATE())
-				;";
-		}
-		
-		return $sql;
-
-	}*/
 	
 	public function insertSQLSERVER($datos)
 	{		
 		$contar=0;
 		foreach($datos as $data){
-			$sql ="INSERT INTO dbo.NS_CN001_REPORTE_VENTA_COSTO_T_REVALUACIONES VALUES
+			$sql ="INSERT INTO dbo.NS_CN001_REPORTE_VENTA_COSTO_T_REVALUACIONES_PRUEBA VALUES
 						   (".$data['ID_ARTICULO']."
 						   ,".$data['ID_ALMACEN']."
 						   ,".$data['NRO_MES']."
@@ -95,52 +69,18 @@ class sqlserverModel extends Model
 						   ,".$data['ID_TRANSACCION']."
 						   ,".$data['NRO_DOCUMENTO']."
 						   ,'".explode("/",$data['FECHA_DOCUMENTO'])[2]."-".explode("/",$data['FECHA_DOCUMENTO'])[1]."-".explode("/",$data['FECHA_DOCUMENTO'])[0]."'
-						   ,'".trim($data['MES'])."'
 						   ,".$data['COSTO_ESTANDAR']."
-						   ,GETDATE())
-				;";
+						   ,GETDATE());";
 				
 			$rs = $this->_db->get_Connection5()->Execute($sql);
 			if($rs){
 				$contar++;
 			}
 		}
-		
+
 		return [$rs, $contar];
 
 	}
-
-		/*$sql ="INSERT INTO dbo.NS_CN001_REPORTE_VENTA_COSTO_T_REVALUACIONES VALUES
-					   (12058
-					   ,37
-					   ,7
-					   ,2022
-					   ,'POL0000002'
-					   ,'BIOMICIN SUPER x CJA50'
-					   ,'SEDE ATE : CUARENTENA'
-					   ,58202
-					   ,1705
-					   ,'2022-07-25'
-					   ,'JULIO'
-					   ,26.86808667
-					   ,GETDATE())
-			;INSERT INTO dbo.NS_CN001_REPORTE_VENTA_COSTO_T_REVALUACIONES VALUES
-					   (12059
-					   ,37
-					   ,7
-					   ,2022
-					   ,'POL0000002'
-					   ,'BIOMICIN SUPER x CJA50'
-					   ,'SEDE ATE : CUARENTENA'
-					   ,58202
-					   ,1705
-					   ,'2022-07-25'
-					   ,'JULIO'
-					   ,26.86808667
-					   ,GETDATE())
-			;";
-		return $this->_db->get_Connection5()->Execute($sql);*/
-	
 	
 	public function conexion()
 	{

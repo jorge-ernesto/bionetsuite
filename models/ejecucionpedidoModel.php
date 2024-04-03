@@ -15,16 +15,36 @@ class ejecucionpedidoModel extends Model
 			T.id as idTrasaccion,
 			OPT.name AS tipoOperacion,
 			T.tranid as numGuia,
-			UPPER(TRIM(T1.addr1)) as direccion,
-			(UPPER(TRIM(T1.pr)) || '  ' || UPPER(TRIM(T1.de))) as depa_prov,
-			UPPER(TRIM(T1.di)) as distrito,
+			(CASE  
+				 WHEN SUBSTR(T.tranid,4,4)='T002' or SUBSTR(T.tranid,4,4)='T009' or SUBSTR(T.tranid,4,4)='T008' or SUBSTR(T.tranid,4,4)='T006' 
+				 THEN UPPER(TRIM(T.custbody122))
+				 ELSE UPPER(TRIM(T1.addr1)) 
+			END) as direccion,
+			(CASE  
+				 WHEN SUBSTR(T.tranid,4,4)='T002' or SUBSTR(T.tranid,4,4)='T009' or SUBSTR(T.tranid,4,4)='T008' or SUBSTR(T.tranid,4,4)='T006' 
+				 THEN (UPPER(TRIM(T.custbody120)) || '  ' || UPPER(TRIM(T.custbody119)))
+				 ELSE (UPPER(TRIM(T1.pr)) || '  ' || UPPER(TRIM(T1.de)))
+			END) as depa_prov,
+			(CASE  
+				 WHEN SUBSTR(T.tranid,4,4)='T002' or SUBSTR(T.tranid,4,4)='T009' or SUBSTR(T.tranid,4,4)='T008' or SUBSTR(T.tranid,4,4)='T006' 
+				 THEN UPPER(TRIM(T.custbody121))
+				 ELSE UPPER(TRIM(T1.di)) 
+			END) as distrito,
 			T.custbody_ns_total_paq as caja,
 			T.custbody_ns_peso_total as peso,
 			TX.trandisplayname as creadodesde,
 			T.custbody10 as vendedor,
-			(CASE WHEN SUBSTR(T.tranid,4,4)='T002' THEN TRIM(T.custbody117) ELSE TRIM(CU.altname) END) as nomCliente,
-			(CASE WHEN SUBSTR(T.tranid,4,4)='T002' THEN TRIM(T.custbody118) ELSE CU.custentity_bio_num_doc END) as docCliente,
-            T.trandate as fecEmision,
+			(CASE 
+				 WHEN SUBSTR(T.tranid,4,4)='T002' or SUBSTR(T.tranid,4,4)='T009' or SUBSTR(T.tranid,4,4)='T008' or SUBSTR(T.tranid,4,4)='T006' 
+				 THEN TRIM(T.custbody117) 
+				 ELSE TRIM(CU.altname) 
+				 END) as nomCliente,
+			(CASE 
+				 WHEN SUBSTR(T.tranid,4,4)='T002' or SUBSTR(T.tranid,4,4)='T009' or SUBSTR(T.tranid,4,4)='T008' or SUBSTR(T.tranid,4,4)='T006' 
+				 THEN TRIM(T.custbody118) 
+				 ELSE CU.custentity_bio_num_doc 
+				 END) as docCliente,
+			T.trandate as fecEmision,
 			T.custbody_ns_fech_traslado as fecTraslado,
 			TXX.tranid as factura,
 			T.custbody_ns_driv_licence as licenConductor,
@@ -39,13 +59,21 @@ class ejecucionpedidoModel extends Model
 			UPPER(TBA.addr1 || ' ' || TBA.addr3 || ' ' || TBA.city || ' ' || TBA.state ) as puntoLLegada,
 			TRIM(T.memo) as Nota,
 			TRIM(T.custbody_ns_printed_xml_response) as xml,
-			UPPER(TRIM(T1.pr)) as depa,
-			UPPER(TRIM(T1.de)) as prov
+			(CASE  
+				 WHEN SUBSTR(T.tranid,4,4)='T002' or SUBSTR(T.tranid,4,4)='T009' or SUBSTR(T.tranid,4,4)='T008' or SUBSTR(T.tranid,4,4)='T006' 
+				 THEN UPPER(TRIM(T.custbody119))
+				 ELSE UPPER(TRIM(T1.pr)) 
+			END) as depa,
+			(CASE  
+				 WHEN SUBSTR(T.tranid,4,4)='T002' or SUBSTR(T.tranid,4,4)='T009' or SUBSTR(T.tranid,4,4)='T008' or SUBSTR(T.tranid,4,4)='T006' 
+				 THEN UPPER(TRIM(T.custbody119))
+				 ELSE UPPER(TRIM(T1.pr)) 
+			END) as prov 
 			FROM 
-		             (
-			     SELECT id,tranid,trandate,custbody_ns_pe_oper_type,employee,billingaddress,entity,custbody17,custbody26,custbody_ns_record_ref,custbody122,custbody119,custbody120,custbody121,custbody_ns_total_paq,custbody_ns_peso_total,custbody10,custbody117,custbody118,custbody_ns_fech_traslado,custbody_ns_driv_licence,custbody_ns_driv_docnumber,custbody_ns_pe_car_brand,custbody_ns_pe_car_plate,custbody_ns_drivers_lastname,custbody_ns_pe_dic_origen,memo,custbody_ns_printed_xml_response, shippingaddress
-			     FROM transaction WHERE id='$id'
-		             ) T 
+				 (
+				 SELECT id,tranid,trandate,custbody_ns_pe_oper_type,employee,billingaddress,entity,custbody17,custbody26,custbody_ns_record_ref,custbody122,custbody119,custbody120,custbody121,custbody_ns_total_paq,custbody_ns_peso_total,custbody10,custbody117,custbody118,custbody_ns_fech_traslado,custbody_ns_driv_licence,custbody_ns_driv_docnumber,custbody_ns_pe_car_brand,custbody_ns_pe_car_plate,custbody_ns_drivers_lastname,custbody_ns_pe_dic_origen,memo,custbody_ns_printed_xml_response, shippingaddress
+				 FROM transaction WHERE id='$id'
+				 ) T 
 			LEFT JOIN (SELECT id,name FROM customrecord_ns_pe_operation_type) OPT ON trim(OPT.id)=trim(T.custbody_ns_pe_oper_type)
 			LEFT JOIN (SELECT id FROM employee) E ON trim(E.id)=trim(T.employee)
 			LEFT JOIN (SELECT nkey,addr1,addr3,city,state FROM transactionBillingAddress) TBA ON (T.billingaddress=TBA.nkey)
@@ -57,13 +85,13 @@ class ejecucionpedidoModel extends Model
 			LEFT JOIN (SELECT nkey,addrtext FROM customerAddressbookEntityAddress) CABEA ON (CABEA.nkey=CU.defaultbillingaddress)
 			LEFT JOIN (SELECT id,tranid FROM transaction) TXX ON (TXX.id=T.custbody_ns_record_ref)
 			LEFT JOIN 
-			     (
-			     SELECT CAEA.nkey,CAEA.addr1,DEP.name as de,PRO.name as pr,DIS.name as di
-			     FROM customerAddressbookEntityAddress CAEA
-			     INNER JOIN CUSTOMLIST1018 DEP ON (CAEA.custrecord176=DEP.id)
-			     INNER JOIN CUSTOMRECORD1019 PRO ON (CAEA.custrecord177=PRO.id)
-			     INNER JOIN CUSTOMRECORD1020 DIS ON (CAEA.custrecord178=DIS.id and DIS.custrecord175=PRO.id)
-			     ) T1 ON (T1.nkey=T.shippingaddress)";
+				 (
+				 SELECT CAEA.nkey,CAEA.addr1,DEP.name as de,PRO.name as pr,DIS.name as di
+				 FROM customerAddressbookEntityAddress CAEA
+				 INNER JOIN CUSTOMLIST1018 DEP ON (CAEA.custrecord176=DEP.id)
+				 INNER JOIN CUSTOMRECORD1019 PRO ON (CAEA.custrecord177=PRO.id)
+				 INNER JOIN CUSTOMRECORD1020 DIS ON (CAEA.custrecord178=DIS.id and DIS.custrecord175=PRO.id)
+				 ) T1 ON (T1.nkey=T.shippingaddress)";
 		$rs  = $this->_db->get_Connection()->Execute($sql);
 		$contador = $rs->RecordCount();
 		if (intval($contador) > 0) {
@@ -114,7 +142,7 @@ class ejecucionpedidoModel extends Model
 		trim(I.description) as description,
 		TRIM(INU.inventorynumber) as Lote,
 		TO_CHAR(INU.expirationdate,'MM-YYYY') as fechacaducidad,
-		I.custitem_ns_pe_cod_unit_med as unidad,
+		TL.custcol_ns_pe_um as unidad,
 		(IA.quantity * -1 ) as quantity
 		from TransactionLine TL 
 		INNER JOIN Item I ON ( I.ID = TL.Item )

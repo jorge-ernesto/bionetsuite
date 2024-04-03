@@ -58,7 +58,7 @@ class asientoContableController extends Controller
 		
 		$cifraletra=new NumeroALetras(); 
 		
-		$numero_a_letras = $cifraletra->toInvoice(number_format(str_replace(',','',$input['dato']['articulos'][0][3]), 2, '.', ''),2,$moneda);
+		$numero_a_letras = $cifraletra->toInvoice(number_format(str_replace(',','',$input['dato']['articulos'][0]['debito']), 2, '.', ''),2,$moneda);
 		
 		if(substr($numero_a_letras,0,3)==="MIL"){
 			$valor_letras = "UN ".$numero_a_letras;
@@ -85,7 +85,7 @@ class asientoContableController extends Controller
 								<td style='width:20%;'>&nbsp;</td>
 								<td style='width:20%;'>&nbsp;</td>
 								<td colspan=2 align='left' style='font-size:11px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIMA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$dia."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$mes."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$anio."</td>
-								<td align='center' style='font-size:12px;'><b>".$input['dato']['articulos'][0][3]." ******</b></td>
+								<td align='center' style='font-size:12px;'><b>".$input['dato']['articulos'][0]['debito']." ******</b></td>
 							</tr>
 							<tr>
 								<td style='padding-top:8px;width:20%;'>&nbsp;</td>
@@ -95,7 +95,7 @@ class asientoContableController extends Controller
 								<td style='padding-top:8px;width:20%;'>&nbsp;</td>
 							</tr>
 							<tr>
-								<td colspan=5 style='padding:5px;font-size:14px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$input['dato']['articulos'][0][1]."</td>
+								<td colspan=5 style='padding:5px;font-size:14px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$input['dato']['articulos'][0]['nombre']."</td>
 							</tr>
 							<tr>
 								<td colspan=5 style='padding:5px;font-size:14px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$valor_letras." ******</td>
@@ -135,7 +135,7 @@ class asientoContableController extends Controller
 				<tr>
 					<td style='padding:1px;width:8%;text-align:left;font-size:9px;'><p>&nbsp;</p>GIRADO<p>&nbsp;</p></td>
 					<td style='padding:1px;width:1%;ext-align:left;font-size:9px;'>:</td>
-					<td style='padding:1px;width:15%;text-align:left;font-size:9px;'>".$input['dato']['articulos'][0][1]."</td>
+					<td style='padding:1px;width:15%;text-align:left;font-size:9px;'>".$input['dato']['articulos'][0]['nombre']."</td>
 				</tr>
 				<tr>
 					<td style='padding:1px;width:8%;text-align:left;font-size:9px;'>FECHA</td>
@@ -215,7 +215,7 @@ class asientoContableController extends Controller
 					<td style='padding:1.5px;width:22%;text-align:left;font-size:9px;'>".$input['dato']['nota']."</td>
 					<td style='padding:1.5px;width:12%;text-align:left;font-size:9px;'><b>BENEFICIARIO</b></td>
 					<td style='padding:1.5px;width:1%;text-align:left;font-size:9px;'>:</td>
-					<td colspan=4 style='padding:1.5px;width:51%;text-align:left;font-size:9px;'>".$input['dato']['articulos'][0][1]."</td>
+					<td colspan=4 style='padding:1.5px;width:51%;text-align:left;font-size:9px;'>".$input['dato']['articulos'][0]['nombre']."</td>
 				</tr>
 			</table>
 		");
@@ -240,12 +240,12 @@ class asientoContableController extends Controller
 			$mpdf->WriteHTML("
 				<tr>
 					<td align='center' style='width:4%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$i."</td>
-					<td align='left' style='width:25%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art[0]."</td>
-					<td align='center' style='width:15%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art[1]."</td>
-					<td align='center' style='width:10%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art[2]."</td>
-					<td align='center' style='width:8%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art[3]."</td>
-					<td align='center' style='width:8%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art[4]."</td>
-					<td align='center' style='width:15%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art[5]."</td>
+					<td align='left' style='width:25%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art['cuenta']."</td>
+					<td align='left' style='width:15%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art['nombre']."</td>
+					<td align='center' style='width:10%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art['nroDocumento']."</td>
+					<td align='center' style='width:8%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art['debito']."</td>
+					<td align='center' style='width:8%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art['credito']."</td>
+					<td align='center' style='width:15%;font-size:9px;border:0.5px solid black;padding:1.5px;'>".$art['nota']."</td>
 				</tr>
 			");
 			$i++;
