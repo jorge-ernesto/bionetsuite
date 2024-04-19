@@ -21,8 +21,11 @@ define('MAIL_APP_USER','notificaciones@biomont.com.pe');
 define('MAIL_APP_PASSWORD','Notifi2020');
 
 /* Conexion oracle */
-define('DB_USER', 'jpena@biomont.com.pe');
+/*define('DB_USER', 'jpena@biomont.com.pe');
 define('DB_PASS', 'Pena140721');
+define('DB_NAME', 'NetSuite');*/
+define('DB_USER', 'fcastro@biomont.com.pe');
+define('DB_PASS', 'Biomont2022#');
 define('DB_NAME', 'NetSuite');
 
 /* Conexion mysql cantidades Lista de Materiales */
