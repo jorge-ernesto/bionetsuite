@@ -129,7 +129,7 @@ class bomModel extends Model
 	
 	public function queryMysql($id_ot)
 	{
-		$sql = "SELECT componente,cantidad FROM tb_registro_cantidad where id_ot='$id_ot'";
+		$sql = "SELECT DISTINCT componente, cantidad FROM tb_registro_cantidad where id_ot = '$id_ot'";
 		$rs  = $this->_db->get_Connection1()->Execute($sql);
 		$contador = $rs->RecordCount();
 		if (intval($contador) > 0) {
