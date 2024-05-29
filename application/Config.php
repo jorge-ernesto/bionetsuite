@@ -24,8 +24,10 @@ define('MAIL_APP_PASSWORD','Notifi2020');
 /*define('DB_USER', 'jpena@biomont.com.pe');
 define('DB_PASS', 'Pena140721');
 define('DB_NAME', 'NetSuite');*/
-define('DB_USER', 'fcastro@biomont.com.pe');
-define('DB_PASS', 'Biomont2022#');
+/*define('DB_USER', 'fcastro@biomont.com.pe');
+define('DB_PASS', 'Biomont2022#');*/
+define('DB_USER', 'gcrisolo@biomont.com.pe');
+define('DB_PASS', 'NetSuite01');
 define('DB_NAME', 'NetSuite');
 
 /* Conexion mysql cantidades Lista de Materiales */
