@@ -18,15 +18,17 @@ class cantidadesLMController extends Controller
 		
 		$objModel = $this->loadModel("cantidadesLM");
 		
+		$el = $objModel->eliminarDatos($input["dato"][0]['num_OT']);
+
 		$res = 1;
 		foreach ($input["dato"] as $dato){
 			$res *= $objModel->guardarDatos($dato['id_OT'], $dato['num_OT'], $dato['ensamblaje'], $dato['componente'], $dato['cantidad'], $dato['semana']);
-			//$res *= $objModel->guardarDatos($dato[0], $dato[1], $dato[2], $dato[3], $dato[4], $dato[5]);
 		}
 		
 		header('Access-Control-Allow-Origin: *');
 		header("Content-type: application/json; charset=utf-8");
 		echo json_encode(["res" =>intval($res)]);
+
 	}
 
 }

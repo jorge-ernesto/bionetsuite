@@ -24,10 +24,16 @@ class cantidadesLMModel extends Model
 		}
 		
 	}*/
+
+	public function eliminarDatos($num_OT)
+	{
+		$sql = "DELETE FROM tb_registro_cantidad WHERE num_ot =".$num_OT.";";
+		$res = $this->_db->get_Connection1()->Execute($sql);
+		return $res;
+	}
 	
 	public function guardarDatos($id_OT,$num_OT,$ensamblaje,$componente,$cantidad,$semana)
 	{
-		
 		$sql = "INSERT INTO tb_registro_cantidad VALUES (null,".$id_OT.",'".$num_OT."','".$ensamblaje."','".$componente."',".$cantidad.",'".$semana."',NOW());";
 		$res = $this->_db->get_Connection1()->Execute($sql);
 		return $res;
